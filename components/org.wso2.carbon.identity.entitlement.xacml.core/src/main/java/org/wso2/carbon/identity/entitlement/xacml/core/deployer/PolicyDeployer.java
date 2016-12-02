@@ -45,6 +45,7 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Initializing the PolicyDeployer");
         artifactType = new ArtifactType<>("policy");
         try {
+            // TODO: 12/2/16 policy location configurable
             repository = new URL("file:xacml/policy");
         } catch (MalformedURLException e) {
             logger.error("Error while initializing deployer", e.getMessage());
