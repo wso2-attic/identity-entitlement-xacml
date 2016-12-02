@@ -46,6 +46,7 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.entitlement.xacml.core</module>
+        <module>components/org.wso2.carbon.identity.entitlement.xacml.endpoint</module>
     </modules>
 
 
