@@ -26,16 +26,16 @@
             <artifactId>msf4j-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.msf4j</groupId>
+            <artifactId>msf4j-swagger</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.msf4j</groupId>
-            <artifactId>msf4j-swagger</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -49,16 +49,16 @@
     </dependencies>
 
     <properties>
-        <private.package>org.wso2.carbon.identity.entitlement.endpoint.*</private.package>
+        <private.package>org.wso2.carbon.identity.entitlement.xacml.endpoint.*</private.package>
         <import.package>
-            org.osgi.framework.*;version="",
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             org.wso2.msf4j.*; version="${wso2.msf4j.import.version.range}",
             javax.ws.rs.*,
             javax.xml.bind*,
             org.slf4j; version="${org.slf4j.import.version.range}",
             io.swagger.annotations.*,
             org.wso2.carbon.messaging.*,
-            org.wso2.carbon.identity.entitlement.*; version="1.0.0"
+            org.wso2.carbon.identity.entitlement.xacml.core.*
         </import.package>
         <carbon.component>
             osgi.service; objectClass="org.wso2.msf4j.Microservice"

@@ -31,11 +31,11 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntityNotFoundException;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XAMCLRequest;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntityNotFoundException;
+import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XAMCLRequest;
 import org.wso2.msf4j.Microservice;
 
 import javax.ws.rs.Consumes;
@@ -52,7 +52,7 @@ import javax.ws.rs.core.Response;
  * EntitlementAdmin micro service.
  */
 @Component(
-        name = "org.wso2.carbon.identity.entitlement.endpoint.EntitlementAdminService",
+        name = "org.wso2.carbon.identity.entitlement.xacml.endpoint.EntitlementAdminService",
         service = Microservice.class,
         immediate = true
 )
@@ -135,9 +135,9 @@ public class EntitlementAdminService implements Microservice {
             @ApiResponse(code = 200, message = "XACML JSON/XML Response"),
             @ApiResponse(code = 404, message = "policy item not found")})
     public Response evaluate(@ApiParam(value = "Response Media Type", required = true)
-                                    @HeaderParam("Content-Type") String contentType,
-                                @ApiParam(value = "XACML JSON/XML Request", required = true) XAMCLRequest
-                                        xacmlRequest) {
+                             @HeaderParam("Content-Type") String contentType,
+                             @ApiParam(value = "XACML JSON/XML Request", required = true) XAMCLRequest
+                                     xacmlRequest) {
         EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
         String result = entitlementEngine.testPolicy(xacmlRequest.getAction(), xacmlRequest.getResource(),
                 xacmlRequest.getSubject(), xacmlRequest.getEnvironment());

@@ -25,7 +25,7 @@ import java.nio.file.Paths;
  * events and keep the policy store updated.
  */
 @Component(
-        name = "org.wso2.carbon.identity.entitlement.deployer.PolicyDeployer",
+        name = "org.wso2.carbon.identity.entitlement.xacml.core.deployer.PolicyDeployer",
         immediate = true
 )
 public class PolicyDeployer implements Deployer {

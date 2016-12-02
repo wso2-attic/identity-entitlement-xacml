@@ -57,13 +57,13 @@
         <findbugs.skip>true</findbugs.skip>
         <checkstyle.skip>true</checkstyle.skip>
         <private.package>
-            org.wso2.carbon.identity.entitlement.internal,
-            org.wso2.carbon.identity.entitlement.deployer
+            org.wso2.carbon.identity.entitlement.xacml.core.internal,
+            org.wso2.carbon.identity.entitlement.xacml.core.deployer
         </private.package>
         <export.package>
-            !org.wso2.carbon.identity.entitlement.internal,
-            !org.wso2.carbon.identity.entitlement.deployer,
-            org.wso2.carbon.identity.entitlement.*
+            !org.wso2.carbon.identity.entitlement.xacml.core.internal,
+            !org.wso2.carbon.identity.entitlement.xacml.core.deployer,
+            org.wso2.carbon.identity.entitlement.xacml.core.*
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
