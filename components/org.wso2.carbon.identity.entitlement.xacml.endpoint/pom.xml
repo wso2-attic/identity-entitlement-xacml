@@ -51,8 +51,8 @@
     <properties>
         <private.package>org.wso2.carbon.identity.entitlement.endpoint.*</private.package>
         <import.package>
-            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            org.wso2.msf4j.*; version="[2.0.0, 3.0.0)",
+            org.osgi.framework.*;version="",
+            org.wso2.msf4j.*; version="${wso2.msf4j.import.version.range}",
             javax.ws.rs.*,
             javax.xml.bind*,
             org.slf4j; version="${org.slf4j.import.version.range}",
