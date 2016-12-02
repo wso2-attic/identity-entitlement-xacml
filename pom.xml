@@ -25,7 +25,8 @@
         <version>5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.entitlement.xacml</artifactId>
+    <groupId>org.wso2.carbon.identity.entitlement.xacml</groupId>
+    <artifactId>identity-entitlement-xacml</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -42,4 +43,7 @@
         <tag>HEAD</tag>
     </scm>
 
+    <modules>
+        <module>components/org.wso2.carbon.identity.entitlement.xacml.core</module>
+    </modules>
 </project>
