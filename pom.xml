@@ -46,4 +46,106 @@
     <modules>
         <module>components/org.wso2.carbon.identity.entitlement.xacml.core</module>
     </modules>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.core.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>${equinox.osgi.services.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${equinox.osgi.version}</version>
+            </dependency>
+
+            <!--logging-->
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
+            </dependency>
+
+            <!--balana-->
+            <dependency>
+                <groupId>org.wso2.balana</groupId>
+                <artifactId>org.wso2.balana</artifactId>
+                <version>${balana.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.balana</groupId>
+                <artifactId>org.wso2.balana.utils</artifactId>
+                <version>${balana.version}</version>
+            </dependency>
+
+            <!--carbon deployment framework-->
+            <dependency>
+                <groupId>org.wso2.carbon.deployment</groupId>
+                <artifactId>org.wso2.carbon.deployment.engine</artifactId>
+                <version>${carbon.deployment.version}</version>
+            </dependency>
+
+
+            <!--msf4j-->
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-core</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-swagger</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+
+            <!--javax.ws.rs-->
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${rs-api.version}</version>
+            </dependency>
+
+            <!--gson-->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${google.gson.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <osgi.core.api.version>6.0.0</osgi.core.api.version>
+        <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
+        <pax.logging.api.version>1.8.4</pax.logging.api.version>
+        <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <carbon.deployment.version>5.0.0</carbon.deployment.version>
+        <balana.version>1.0.5</balana.version>
+        <rs-api.version>2.0</rs-api.version>
+        <msf4j.version>2.1.0</msf4j.version>
+        <google.gson.version>2.2.4</google.gson.version>
+
+
+
+
+        <!--version ranges-->
+        <balana.import.version.range>[1.0.1,2.0.0)</balana.import.version.range>
+        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
+        <carbon.deployment.import.version.range>[5.0.0, 6.0.0)</carbon.deployment.import.version.range>
+        <carbon.kernel.import.version.range>[5.0.0,6.0.0)</carbon.kernel.import.version.range>
+        <org.slf4j.import.version.range>[1.7.0, 1.7.5)</org.slf4j.import.version.range>
+    </properties>
 </project>
