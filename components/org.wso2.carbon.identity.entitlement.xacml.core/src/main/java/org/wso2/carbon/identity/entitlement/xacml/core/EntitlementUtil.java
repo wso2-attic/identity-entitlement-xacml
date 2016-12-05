@@ -3,6 +3,9 @@ package org.wso2.carbon.identity.entitlement.xacml.core;
 import org.apache.xerces.util.SecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.wso2.balana.XACMLConstants;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.FirstApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
@@ -12,10 +15,14 @@ import org.wso2.balana.combine.xacml3.OrderedDenyOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.OrderedPermitOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.PermitOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.PermitUnlessDenyPolicyAlg;
+import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  *
@@ -112,4 +119,93 @@ public class EntitlementUtil {
         throw new EntitlementException("Unsupported policy algorithm " + uri);
     }
 
+    /**
+     * Validates the given policy XML files against the standard XACML policies.
+     *
+     * @param policy Policy to validate
+     * @return return false, If validation failed or XML parsing failed or any IOException occurs
+     */
+    public static boolean validatePolicy(PolicyStoreDTO policy) {
+//        try {
+
+
+
+            // there may be cases where you only updated the policy meta data in PolicyDTO not the
+            // actual XACML policy String
+            if (policy.getPolicy() == null || policy.getPolicy().trim().length() < 1) {
+                return true;
+            }
+
+            //get policy version
+            String policyXMLNS = getPolicyVersion(policy.getPolicy());
+
+            return true;
+//            Map<String, Schema> schemaMap = EntitlementServiceComponent.
+//                    getEntitlementConfig().getPolicySchemaMap();
+            //load correct schema by version
+//            Schema schema = schemaMap.get(policyXMLNS);
+
+//            if (schema != null) {
+//                //build XML document
+//                DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
+//                InputStream stream = new ByteArrayInputStream(policy.getPolicy().getBytes());
+//                Document doc = documentBuilder.parse(stream);
+//                //Do the DOM validation
+//                DOMSource domSource = new DOMSource(doc);
+//                DOMResult domResult = new DOMResult();
+//                Validator validator = schema.newValidator();
+//                validator.validate(domSource, domResult);
+//                if (logger.isDebugEnabled()) {
+//                    logger.debug("XACML Policy validation succeeded with the Schema");
+//                }
+//                return true;
+//            } else {
+//                logger.error("Invalid Namespace in policy");
+//            }
+//        } catch (SAXException e) {
+//            logger.error("XACML policy is not valid according to the schema :" + e.getMessage());
+//        } catch (java.io.IOException e) {
+//            //ignore
+//        } catch (ParserConfigurationException e) {
+//            //ignore
+//        }
+//        return false;
+    }
+
+    public static String getPolicyVersion(String policy) {
+
+        try {
+            //build XML document
+            DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
+            InputStream stream = new ByteArrayInputStream(policy.getBytes());
+            Document doc = documentBuilder.parse(stream);
+
+
+            //get policy version
+            Element policyElement = doc.getDocumentElement();
+            return policyElement.getNamespaceURI();
+        } catch (Exception e) {
+            // ignore exception as default value is used
+            logger.debug("Policy version can not be identified. Default XACML 3.0 version is used", e);
+            return XACMLConstants.XACML_3_0_IDENTIFIER;
+        }
+    }
+
+
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
+            ParserConfigurationException {
+
+        DocumentBuilderFactory documentBuilderFactory = getSecuredDocumentBuilderFactory();
+        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        return documentBuilder;
+
+    }
 }

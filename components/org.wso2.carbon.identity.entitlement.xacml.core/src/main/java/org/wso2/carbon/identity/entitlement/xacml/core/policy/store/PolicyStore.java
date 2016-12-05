@@ -21,9 +21,12 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.balana.AbstractPolicy;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
+import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.storage.StorageManager;
 import org.wso2.carbon.identity.entitlement.xacml.core.storage.StorageManagerImp;
 
@@ -40,11 +43,14 @@ public class PolicyStore {
     private static final Logger logger = LoggerFactory.getLogger(PolicyStore.class);
 
     private StorageManager storageManager;
+    private PolicyStoreReader reader;
     private final String papStore = EntitlementConstants.PAP_STORE;
 
 
     public PolicyStore() {
+        logger.info("Initializing Policy Store");
         storageManager = StorageManagerImp.getStoreManager();
+        reader = new PolicyStoreReader();
     }
 
     /**
@@ -52,24 +58,50 @@ public class PolicyStore {
      * @throws EntitlementException custom exception
      */
     public void addPolicy(PolicyStoreDTO policy) throws EntitlementException {
-        OMElement omElement = null;
 
-//        if (policy.getPolicyType() != null && policy.getPolicyType().trim().length() > 0) {
-//            resource.setProperty(PDPConstants.POLICY_TYPE, policy.getPolicyType());
-//        } else {
-//            try {
-//                if (newPolicy) {
-//                    omElement = AXIOMUtil.stringToOM(policy.getPolicy());
-//                    resource.setProperty(PDPConstants.POLICY_TYPE, omElement.getLocalName());
+        if (policy == null) {
+            throw new EntitlementException("Policy is null ");
+        }
+
+        if (!EntitlementUtil.validatePolicy(policy)) {
+            throw new EntitlementException("Invalid Entitlement Policy. " +
+                    "Policy is not valid according to XACML schema");
+        }
+
+        AbstractPolicy policyObj = PolicyReader.getInstance(null).getPolicy(policy.getPolicy());
+        if (policyObj == null) {
+            throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
+        }
+
+        String policyId = policyObj.getId().toASCIIString();
+        policy.setPolicyId(policyId);
+
+        if (policyId.contains("/")) {
+            throw new EntitlementException(
+                    " Policy Id cannot contain / characters. Please correct and upload again");
+        }
+//                if (!policyId.matches(regString)) {
+//                    throw new EntitlementException(
+//                            "An Entitlement Policy Id is not valid. It contains illegal characters");
 //                }
-//            } catch (XMLStreamException e) {
-//                policy.setPolicyType(PDPConstants.POLICY_ELEMENT);
-//                logger.warn("Policy Type can not be found. Default type is set");
-//            }
-//        }
 
+
+        if (reader.isExistPolicy(policyId)) {
+            throw new EntitlementException(
+                    "An Entitlement Policy with the given Id already exists");
+        }
+//            try {
+//                String version = versionManager.createVersion(policyDTO);
+//                policyDTO.setVersion(version);
+//            } catch (EntitlementException e) {
+//                logger.error("Policy versioning is not supported", e);
+//            }
+
+
+        OMElement omElement = null;
         try {
             omElement = AXIOMUtil.stringToOM(policy.getPolicy());
+            policy.setPolicyType(omElement.getLocalName());
         } catch (XMLStreamException e) {
 //            nothing
         }

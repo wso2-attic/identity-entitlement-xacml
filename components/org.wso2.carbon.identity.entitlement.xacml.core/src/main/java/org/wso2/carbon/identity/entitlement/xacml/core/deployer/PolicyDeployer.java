@@ -65,7 +65,7 @@ public class PolicyDeployer implements Deployer {
             String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
             PolicyStoreDTO policyDTO = new PolicyStoreDTO();
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
-            policyDTO.setPolicy(content);
+            policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             policyDTO.setActive(true);
             papPolicyStore.addPolicy(policyDTO);
             return artifact.getName();
@@ -105,7 +105,7 @@ public class PolicyDeployer implements Deployer {
             logger.debug("policy in the file : " + content);
             PolicyStoreDTO policyDTO = new PolicyStoreDTO();
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
-            policyDTO.setPolicy(content);
+            policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             papPolicyStore.updatePolicy(policyDTO);
             return artifact.getName();
         } catch (IOException e) {

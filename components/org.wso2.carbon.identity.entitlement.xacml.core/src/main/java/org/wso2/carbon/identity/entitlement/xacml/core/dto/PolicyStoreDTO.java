@@ -33,9 +33,7 @@ public class PolicyStoreDTO {
 
     private boolean active;
 
-    private boolean setOrder;
-
-    private boolean setActive;
+    private String policyType;
 
     private AttributeDTO[] attributeDTOs = new AttributeDTO[0];
 
@@ -83,22 +81,6 @@ public class PolicyStoreDTO {
         this.active = active;
     }
 
-    public boolean isSetOrder() {
-        return setOrder;
-    }
-
-    public void setSetOrder(boolean setOrder) {
-        this.setOrder = setOrder;
-    }
-
-    public boolean isSetActive() {
-        return setActive;
-    }
-
-    public void setSetActive(boolean setActive) {
-        this.setActive = setActive;
-    }
-
     public String[] getPolicySetIdReferences() {
         return Arrays.copyOf(policySetIdReferences, policySetIdReferences.length);
     }
@@ -113,5 +95,13 @@ public class PolicyStoreDTO {
 
     public void setPolicyIdReferences(String[] policyIdReferences) {
         this.policyIdReferences = Arrays.copyOf(policyIdReferences, policyIdReferences.length);
+    }
+
+    public void setPolicyType(String policyType) {
+        this.policyType = policyType;
+    }
+
+    public String getPolicyType(){
+        return policyType;
     }
 }
