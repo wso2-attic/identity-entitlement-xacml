@@ -1,57 +1,27 @@
-/*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.store;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.balana.AbstractPolicy;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.xacml.core.PolicyOrderComparator;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
-import org.wso2.carbon.identity.entitlement.xacml.core.storage.StorageManager;
-import org.wso2.carbon.identity.entitlement.xacml.core.storage.StorageManagerImp;
 
 import javax.xml.stream.XMLStreamException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * This manages the storing and managing policies
+ *
  */
-public class PolicyStore {
-
-    private static final Logger logger = LoggerFactory.getLogger(PolicyStore.class);
-
-    private StorageManager storageManager;
-    private PolicyStoreReader reader;
-    private final String papStore = EntitlementConstants.PAP_STORE;
-
-
-    public PolicyStore() {
-        logger.info("Initializing Policy Store");
-        storageManager = StorageManagerImp.getStoreManager();
-        reader = new PolicyStoreReader();
-    }
+public abstract class PolicyStore {
 
     /**
      * @param policy PolicyStoreDTO which is going to added to the store
@@ -73,8 +43,10 @@ public class PolicyStore {
             throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
         }
 
-        String policyId = policyObj.getId().toASCIIString();
-        policy.setPolicyId(policyId);
+        // TODO: 12/5/16 which is going to be policy id ??
+//        String policyId = policyObj.getId().toASCIIString();
+//        policy.setPolicyId(policyId);
+        String policyId = policy.getPolicyId();
 
         if (policyId.contains("/")) {
             throw new EntitlementException(
@@ -86,7 +58,7 @@ public class PolicyStore {
 //                }
 
 
-        if (reader.isExistPolicy(policyId)) {
+        if (isExistPolicy(policyId)) {
             throw new EntitlementException(
                     "An Entitlement Policy with the given Id already exists");
         }
@@ -127,7 +99,7 @@ public class PolicyStore {
                 policy.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
             }
         }
-        storageManager.store(policy, papStore);
+        doAdd(policy);
     }
 
     /**
@@ -135,18 +107,76 @@ public class PolicyStore {
      * @throws EntitlementException custom exception
      */
     public void updatePolicy(PolicyStoreDTO policy) throws EntitlementException {
-        PolicyStoreDTO existingPolicy = storageManager.read(policy.getPolicyId(), papStore);
-        storageManager.remove(existingPolicy.getPolicyId(), papStore);
+        PolicyStoreDTO existingPolicy = readPolicyDTO(policy.getPolicyId());
+        removePolicy(existingPolicy.getPolicyId());
         addPolicy(policy);
     }
 
-
     /**
-     * @param policyId which have to removed from store
+     * Read policy from store for PolicyFinder
+     *
+     * @param policyId policy id
+     * @return AbstractPolicy
      * @throws EntitlementException custom exception
      */
-    public void removePolicy(String policyId) throws EntitlementException {
-        storageManager.remove(policyId, papStore);
+    public synchronized AbstractPolicy readAbstractPolicy(String policyId) throws EntitlementException {
+        PolicyStoreDTO policyDTO = readPolicyDTO(policyId);
+        if (policyDTO == null){
+            throw new EntitlementException("policy not found in PAP Store " , null);
+        }
+        String policy = new String(policyDTO.getPolicy().getBytes(), Charset.forName("UTF-8"));
+        return PolicyReader.getInstance(null).getPolicy(policy);
     }
 
+    public PolicyStoreDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException {
+        PolicyStoreDTO[] policyStoreDTOs = readAllPolicyDTOs();
+        List<PolicyStoreDTO> collect = Arrays.stream(policyStoreDTOs).filter((policyDto -> policyDto.isActive() == active)).collect(Collectors.toList());
+        policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
+        if (order){
+            Arrays.sort(policyStoreDTOs, new PolicyOrderComparator());
+        }
+        return policyStoreDTOs;
+    }
+
+    /**
+     * Reads PolicyStoreDTO for given policy id
+     *
+     * @param policyId policy id
+     * @return PolicyStoreDTO
+     * @throws EntitlementException custom exception
+     */
+    public abstract PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException;
+
+    /**
+     * Checks whether policy is exist for given policy id
+     *
+     * @param policyId policy id
+     * @return true of false
+     * @throws EntitlementException custom exception
+     */
+    public abstract boolean isExistPolicy(String policyId) throws EntitlementException;
+
+    /**
+     * Reads all the policyDTO in the store
+     *
+     * @return Array of PolicyStoreDTO
+     * @throws EntitlementException custom exception
+     */
+    public abstract PolicyStoreDTO[] readAllPolicyDTOs() throws EntitlementException;
+
+    /**
+     * Remove a particular policy
+     * 
+     * @param policyId policyId going to remove
+     * @throws EntitlementException custom exception
+     */
+    public abstract void removePolicy(String policyId) throws EntitlementException;
+
+    /**
+     *  The implementation of the addPolicy
+     * 
+     * @param policy policy 
+     * @throws EntitlementException custom exception
+     */
+    protected abstract void doAdd(PolicyStoreDTO policy) throws EntitlementException;
 }

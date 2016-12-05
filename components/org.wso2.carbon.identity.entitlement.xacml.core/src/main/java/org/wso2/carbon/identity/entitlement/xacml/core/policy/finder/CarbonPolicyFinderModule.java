@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.entitlement.xacml.core.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
-import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     private static final String MODULE_NAME = "Policy Finder Module";
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
-    private PolicyStoreReader reader = new PolicyStoreReader();
+    private PolicyStore policyStore;
 
 
 //    /**
@@ -76,7 +76,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
         if (policyIdentifiers != null && !isPolicyOrderingSupport()) {
             PolicyStoreDTO[] policyDTOs = new PolicyStoreDTO[0];
             try {
-                policyDTOs = reader.readAllPolicyDTOs();
+                policyDTOs = policyStore.readAllPolicyDTOs();
             } catch (EntitlementException e) {
 //                what to do
             }
@@ -106,7 +106,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
                 if (!isPolicyDeActivationSupport()) {
                     PolicyStoreDTO data = null;
                     try {
-                        data = reader.readPolicyDTO(identifier);
+                        data = policyStore.readPolicyDTO(identifier);
                     } catch (EntitlementException e) {
 //                        what to do
                     }
@@ -131,8 +131,8 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
 
     @Override
-    public void init(Properties properties)  {
-        // do nothing
+    public void init(Properties properties) throws EntitlementException {
+        //
     }
 
     @Override
@@ -143,7 +143,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     @Override
     public String getPolicy(String policyId) {
         try {
-            return (reader.readPolicyDTO(policyId)).getPolicy();
+            return (policyStore.readPolicyDTO(policyId)).getPolicy();
         } catch (EntitlementException e) {
 //            do nothing
         }
@@ -153,7 +153,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     @Override
     public int getPolicyOrder(String policyId) {
         try {
-            return (reader.readPolicyDTO(policyId)).getPolicyOrder();
+            return (policyStore.readPolicyDTO(policyId)).getPolicyOrder();
         } catch (EntitlementException e) {
 //            nothing
         }
@@ -165,7 +165,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
         // retrieve for policies that are not active
         try {
-            PolicyStoreDTO dto = reader.readPolicyDTO(policyId);
+            PolicyStoreDTO dto = policyStore.readPolicyDTO(policyId);
             if (dto != null && dto.getPolicy() != null && !dto.isActive()) {
                 return dto.getPolicy();
             }
@@ -180,7 +180,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
         PolicyStoreDTO[] policyDTOs = null;
         Map<String, Set<AttributeDTO>> attributeMap = null;
         try {
-            policyDTOs = reader.readAllPolicyDTOs(true, true);
+            policyDTOs = policyStore.readAllPolicyDTOs(true, true);
         } catch (Exception e) {
             logger.error("Policies can not be retrieved from registry policy finder module", e);
         }
@@ -240,7 +240,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     protected String[] getPolicyIdentifiers() {
         List<String> policyIds = new ArrayList<>();
         try {
-            PolicyStoreDTO[] policyStoreDTOs = reader.readAllPolicyDTOs();
+            PolicyStoreDTO[] policyStoreDTOs = policyStore.readAllPolicyDTOs();
             policyIds = Arrays.stream(policyStoreDTOs).map(PolicyStoreDTO::getPolicyId)
                     .collect(Collectors.toList());
         } catch (EntitlementException e) {

@@ -28,12 +28,15 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
-import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntityNotFoundException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XAMCLRequest;
 import org.wso2.msf4j.Microservice;
@@ -72,7 +75,7 @@ public class EntitlementAdminService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementAdminService.class);
 
-    private PolicyStoreReader policyStoreReader = new PolicyStoreReader();
+    private PolicyStore policyStore;
 
     @Activate
     protected void activate(BundleContext bundleContext) {
@@ -83,6 +86,18 @@ public class EntitlementAdminService implements Microservice {
     protected void deactivate(BundleContext bundleContext) {
         // Nothing to do
     }
+
+    @Reference(
+            name = "identity.policy.store.service",
+            service = PolicyStore.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+//            unbind = "unregisterPolicyStore"
+    )
+    protected void registerDeployer(PolicyStore policyStore) {
+        this.policyStore = policyStore;
+    }
+
 
     @GET
     public String welcome() {
@@ -100,7 +115,7 @@ public class EntitlementAdminService implements Microservice {
             @ApiResponse(code = 404, message = "policy store not found")})
     public Response getAllPolcies() throws EntityNotFoundException {
         try {
-            PolicyStoreDTO[] policyDTOs = policyStoreReader.readAllPolicyDTOs();
+            PolicyStoreDTO[] policyDTOs = policyStore.readAllPolicyDTOs();
             return Response.status(Response.Status.OK).entity(policyDTOs).build();
         } catch (EntitlementException e) {
             throw new EntityNotFoundException("not found ", e);
@@ -118,7 +133,7 @@ public class EntitlementAdminService implements Microservice {
             @ApiResponse(code = 404, message = "policy item not found")})
     public Response getPolcy(@PathParam("policyId") String policyId) throws EntityNotFoundException {
         try {
-            PolicyStoreDTO policyDTO = policyStoreReader.readPolicyDTO(policyId);
+            PolicyStoreDTO policyDTO = policyStore.readPolicyDTO(policyId);
             return Response.status(Response.Status.OK).entity(policyDTO).build();
         } catch (EntitlementException e) {
             throw new EntityNotFoundException("policy not found ", e);

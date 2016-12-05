@@ -1,9 +1,10 @@
 package org.wso2.carbon.identity.entitlement.xacml.core.deployer;
 
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.engine.Artifact;
@@ -12,6 +13,7 @@ import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
+import org.wso2.carbon.identity.entitlement.xacml.core.internal.ServiceComponent;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.io.IOException;
@@ -33,16 +35,24 @@ public class PolicyDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(PolicyDeployer.class);
     private ArtifactType artifactType;
     private URL repository;
-    private PolicyStore papPolicyStore;
 
-    @Activate
-    protected void start(BundleContext bundleContext) {
-        papPolicyStore = new PolicyStore();
+    private PolicyStore policyStore;
+
+    @Reference(
+            name = "identity.policy.store.service",
+            service = PolicyStore.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+//            unbind = "unregisterPolicyStore"
+    )
+    protected void registerDeployer(PolicyStore policyStore) {
+        this.policyStore = policyStore;
     }
 
     @Override
     public void init() {
         logger.debug("Initializing the PolicyDeployer");
+//        policyStore = ServiceComponent.getPolicyStore();
         artifactType = new ArtifactType<>("policy");
         try {
             // TODO: 12/2/16 policy location configurable
@@ -67,7 +77,7 @@ public class PolicyDeployer implements Deployer {
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
             policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             policyDTO.setActive(true);
-            papPolicyStore.addPolicy(policyDTO);
+            policyStore.addPolicy(policyDTO);
             return artifact.getName();
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
@@ -85,7 +95,7 @@ public class PolicyDeployer implements Deployer {
         }
         logger.debug("Undeploying : " + key);
         try {
-            papPolicyStore.removePolicy((String) key);
+            policyStore.removePolicy((String) key);
         } catch (EntitlementException e) {
 //            throw new EntitlementException("", e);
         }
@@ -106,7 +116,7 @@ public class PolicyDeployer implements Deployer {
             PolicyStoreDTO policyDTO = new PolicyStoreDTO();
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
             policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
-            papPolicyStore.updatePolicy(policyDTO);
+            policyStore.updatePolicy(policyDTO);
             return artifact.getName();
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
