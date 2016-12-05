@@ -38,7 +38,6 @@ public class ServiceComponent {
     protected void start(BundleContext bundleContext) throws Exception {
         logger.info("Service Component is activated");
 
-
         logger.info("Service Started  ");
 
     }

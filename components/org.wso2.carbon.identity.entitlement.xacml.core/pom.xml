@@ -58,11 +58,14 @@
         <checkstyle.skip>true</checkstyle.skip>
         <private.package>
             org.wso2.carbon.identity.entitlement.xacml.core.internal,
+            org.wso2.carbon.identity.entitlement.xacml.core.d
+            ,
             org.wso2.carbon.identity.entitlement.xacml.core.deployer
         </private.package>
         <export.package>
             !org.wso2.carbon.identity.entitlement.xacml.core.internal,
             !org.wso2.carbon.identity.entitlement.xacml.core.deployer,
+            !org.wso2.carbon.identity.entitlement.xacml.core.pdp,
             org.wso2.carbon.identity.entitlement.xacml.core.*
         </export.package>
         <import.package>

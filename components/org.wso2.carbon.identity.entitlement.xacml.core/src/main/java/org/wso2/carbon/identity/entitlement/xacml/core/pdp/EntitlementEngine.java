@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.identity.entitlement.xacml.core.pdp;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.Balana;
@@ -36,6 +39,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Component(
+        name = "org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine",
+        immediate = true
+)
 public class EntitlementEngine {
 
     private PDP pdp;
@@ -50,6 +57,10 @@ public class EntitlementEngine {
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
 
 
+    @Activate
+    protected void start(BundleContext bundleContext) {
+        entitlementEngine = new EntitlementEngine();
+    }
     /**
      * Get a EntitlementEngine instance. This method will return an
      * EntitlementEngine instance if exists, or creates a new one
