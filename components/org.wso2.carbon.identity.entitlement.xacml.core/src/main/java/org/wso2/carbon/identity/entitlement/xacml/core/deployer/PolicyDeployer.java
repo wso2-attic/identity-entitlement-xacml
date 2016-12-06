@@ -12,11 +12,8 @@ import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
-import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
-import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
-import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,20 +34,7 @@ public class PolicyDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(PolicyDeployer.class);
     private ArtifactType artifactType;
     private URL repository;
-
-    private PolicyStore policyStore;
     private PolicyCollection policyCollection;
-
-    @Reference(
-            name = "policy.store.service",
-            service = PolicyStore.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.STATIC
-//            unbind = "unregisterPolicyStore"
-    )
-    protected void registerPolicyStore(PolicyStore policyStore) {
-        this.policyStore = policyStore;
-    }
 
     @Reference(
             name = "policy.collection.service",
@@ -88,20 +72,12 @@ public class PolicyDeployer implements Deployer {
             policyId = policyId.substring(0, policyId.lastIndexOf("."));
             String policyPath = artifact.getFile().getAbsolutePath();
             String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
-            PolicyStoreDTO policyDTO = new PolicyStoreDTO();
-            policyDTO.setPolicyId(policyId);
-            policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
-            policyDTO.setActive(true);
-            policyStore.addPolicy(policyDTO);
 
-            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy());
+            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
             policyCollection.addPolicy(abstractPolicy);
             return policyId;
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
-            logger.error(e.getMessage());
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
         }
         return null;
     }
@@ -112,12 +88,7 @@ public class PolicyDeployer implements Deployer {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key + "is not a String value");
         }
         logger.debug("Undeploying : " + key);
-        try {
-            policyStore.removePolicy((String) key);
-            policyCollection.deletePolicy((String) key);
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
+        policyCollection.deletePolicy((String) key);
     }
 
     @Override
@@ -131,19 +102,13 @@ public class PolicyDeployer implements Deployer {
             }
             String policyPath = artifact.getFile().getAbsolutePath();
             String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
-            logger.debug("policy in the file : " + content);
-            PolicyStoreDTO policyDTO = new PolicyStoreDTO();
-            policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
-            policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
-            policyStore.updatePolicy(policyDTO);
 
-            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy());
+            AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<",
+                    "><"));
             policyCollection.addPolicy(abstractPolicy);
             return artifact.getName();
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
         }
         return null;
     }
