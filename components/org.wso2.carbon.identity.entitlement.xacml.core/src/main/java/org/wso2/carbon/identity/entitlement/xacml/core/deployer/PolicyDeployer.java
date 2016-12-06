@@ -7,12 +7,15 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.balana.AbstractPolicy;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.io.IOException;
@@ -36,6 +39,7 @@ public class PolicyDeployer implements Deployer {
     private URL repository;
 
     private PolicyStore policyStore;
+    private PolicyCollection policyCollection;
 
     @Reference(
             name = "policy.store.service",
@@ -44,8 +48,19 @@ public class PolicyDeployer implements Deployer {
             policy = ReferencePolicy.STATIC
 //            unbind = "unregisterPolicyStore"
     )
-    protected void registerDeployer(PolicyStore policyStore) {
+    protected void registerPolicyStore(PolicyStore policyStore) {
         this.policyStore = policyStore;
+    }
+
+    @Reference(
+            name = "policy.collection.service",
+            service = PolicyCollection.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+//            unbind = "unregisterPolicyStore"
+    )
+    protected void registerPolicyCollection(PolicyCollection policyCollection) {
+        this.policyCollection = policyCollection;
     }
 
     @Override
@@ -70,19 +85,23 @@ public class PolicyDeployer implements Deployer {
                 logger.debug("non-xml file deployed ");
                 return null;
             }
+            policyId = policyId.substring(0, policyId.lastIndexOf("."));
             String policyPath = artifact.getFile().getAbsolutePath();
             String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
             PolicyStoreDTO policyDTO = new PolicyStoreDTO();
-            policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
+            policyDTO.setPolicyId(policyId);
             policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             policyDTO.setActive(true);
             policyStore.addPolicy(policyDTO);
-            return artifact.getName();
+
+            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy());
+            policyCollection.addPolicy(abstractPolicy);
+            return policyId;
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
-//            throw new EntitlementException("Error in reading the policy : ", e);
+            logger.error(e.getMessage());
         } catch (EntitlementException e) {
-//            throw new EntitlementException("", e);
+            logger.error(e.getMessage());
         }
         return null;
     }
@@ -95,8 +114,9 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Undeploying : " + key);
         try {
             policyStore.removePolicy((String) key);
+            policyCollection.deletePolicy((String) key);
         } catch (EntitlementException e) {
-//            throw new EntitlementException("", e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -116,12 +136,13 @@ public class PolicyDeployer implements Deployer {
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
             policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             policyStore.updatePolicy(policyDTO);
+            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy());
+            policyCollection.addPolicy(abstractPolicy);
             return artifact.getName();
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
-//            throw new EntitlementException("Error in reading the policy : ", e);
         } catch (EntitlementException e) {
-//            throw new EntitlementException("", e);
+            logger.error(e.getMessage());
         }
         return null;
     }

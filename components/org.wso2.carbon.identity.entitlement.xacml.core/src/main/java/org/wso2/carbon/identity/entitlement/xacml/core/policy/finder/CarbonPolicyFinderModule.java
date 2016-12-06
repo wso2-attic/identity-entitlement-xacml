@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.finder;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.PolicyOrderComparator;
@@ -42,6 +46,11 @@ import java.util.stream.Collectors;
  * Abstract implementation of a policy finder module. This can be easily extended by any module
  * that support dynamic policy changes.
  */
+@Component(
+        name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.CarbonPolicyFinderModule",
+        immediate = true,
+        service = PolicyFinderModule.class
+)
 public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
     private static final String MODULE_NAME = "Policy Finder Module";
@@ -49,28 +58,16 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
     private PolicyStore policyStore;
 
-    public CarbonPolicyFinderModule(PolicyStore policyStore) {
+    @Reference(
+            name = "policy.store.service",
+            service = PolicyStore.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+//            unbind = "unregisterPolicyStore"
+    )
+    protected void registerPolicyStore(PolicyStore policyStore) {
         this.policyStore = policyStore;
     }
-
-
-//    /**
-//     * This method must be called by the module when its policies are updated
-//     */
-//    public static void invalidateCache(String policyId, String action) {
-//
-//
-//        EntitlementEngine.getInstance().getPolicyCache().invalidateCache(policyId, action);
-//
-//
-//        EntitlementEngine.getInstance().clearDecisionCache();
-//
-//    }
-//
-//    public static void invalidateCache() {
-//        EntitlementEngine.getInstance().clearDecisionCache();
-//        EntitlementEngine.getInstance().getPolicyCache().invalidateCache();
-//    }
 
 
     @Override

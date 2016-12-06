@@ -16,7 +16,7 @@ import java.util.HashMap;
 )
 public class FileBasedPolicyStore extends PolicyStore {
 
-    private HashMap<String, PolicyStoreDTO> policyStore = new HashMap<>();
+    private static HashMap<String, PolicyStoreDTO> policyStore = new HashMap<>();
 
     @Override
     public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {

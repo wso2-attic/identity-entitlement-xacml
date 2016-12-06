@@ -94,7 +94,7 @@ public class EntitlementAdminService implements Microservice {
             policy = ReferencePolicy.STATIC
 //            unbind = "unregisterPolicyStore"
     )
-    protected void registerDeployer(PolicyStore policyStore) {
+    protected void registerPolicyStore(PolicyStore policyStore) {
         this.policyStore = policyStore;
     }
 

@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.collection;
 
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.AbstractPolicy;
@@ -40,6 +41,11 @@ import java.util.Properties;
  * simple implementation of Policy collection interface. This uses in-memory map to maintain policies
  * policy versions are not maintained by this
  */
+@Component(
+        name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.SimplePolicyCollection",
+        immediate = true,
+        service = org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection.class
+)
 public class SimplePolicyCollection implements PolicyCollection {
 
     private static final Logger logger = LoggerFactory.getLogger(SimplePolicyCollection.class);
@@ -49,7 +55,7 @@ public class SimplePolicyCollection implements PolicyCollection {
      * to maintain the order of the policies, <code>LinkedHashMap</code> has been used.
      * Map with  policy identifier policy as <code>AbstractPolicy</code> object
      */
-    private LinkedHashMap<URI, AbstractPolicy> policyCollection = new LinkedHashMap<URI, AbstractPolicy>();
+    private static LinkedHashMap<URI, AbstractPolicy> policyCollection = new LinkedHashMap<URI, AbstractPolicy>();
     /**
      * the optional combining algorithm used when wrapping multiple policies
      * if no algorithm is defined, only one applicable algorithm is used
