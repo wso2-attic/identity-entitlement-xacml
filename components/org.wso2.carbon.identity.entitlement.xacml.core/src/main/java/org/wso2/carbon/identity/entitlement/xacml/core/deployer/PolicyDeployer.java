@@ -57,7 +57,7 @@ public class PolicyDeployer implements Deployer {
             service = PolicyCollection.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.STATIC
-//            unbind = "unregisterPolicyStore"
+//            unbind = "unregisterPolicyCollection"
     )
     protected void registerPolicyCollection(PolicyCollection policyCollection) {
         this.policyCollection = policyCollection;
@@ -136,6 +136,7 @@ public class PolicyDeployer implements Deployer {
             policyDTO.setPolicyId(policyId.substring(0, policyId.lastIndexOf(".")));
             policyDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
             policyStore.updatePolicy(policyDTO);
+
             AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy());
             policyCollection.addPolicy(abstractPolicy);
             return artifact.getName();

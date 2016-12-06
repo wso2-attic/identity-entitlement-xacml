@@ -88,6 +88,24 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
         finderModules.remove(policyFinderModule);
     }
 
+    @Reference(
+            name = "policy.collection.service",
+            service = PolicyCollection.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+    )
+    protected void registerPolicyCollection(PolicyCollection policyCollection) {
+        try {
+            PolicyCombiningAlgorithm policyCombiningAlgorithm = EntitlementUtil.
+                    getPolicyCombiningAlgorithm(DenyOverridesPolicyAlg.algId);
+            policyCollection = new SimplePolicyCollection();
+            policyCollection.setPolicyCombiningAlgorithm(policyCombiningAlgorithm);
+        } catch (EntitlementException e) {
+            logger.error(e.getMessage());
+        }
+        this.policyCollection = policyCollection;
+    }
+
     @Override
     public void init(PolicyFinder finder) {
         initFinish = false;
@@ -115,19 +133,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
         };
 
-        PolicyCombiningAlgorithm policyCombiningAlgorithm = null;
-
-        // get policy reader
         policyReader = PolicyReader.getInstance(finder);
-
-        try {
-            policyCombiningAlgorithm = EntitlementUtil.getPolicyCombiningAlgorithm(DenyOverridesPolicyAlg.algId);
-            policyCollection = new SimplePolicyCollection();
-            policyCollection.setPolicyCombiningAlgorithm(policyCombiningAlgorithm);
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
-
         initFinish = true;
         logger.info("Initializing of policy store is finished at :  " + new Date());
     }
@@ -158,7 +164,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
                 return new PolicyFinderResult(policy);
             }
         } catch (EntitlementException e) {
-            ArrayList<String> code = new ArrayList<String>();
+            ArrayList<String> code = new ArrayList<>();
             code.add(Status.STATUS_PROCESSING_ERROR);
             Status status = new Status(code, e.getMessage());
             return new PolicyFinderResult(status);

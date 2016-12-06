@@ -204,8 +204,7 @@ public class EntitlementUtil {
 
         DocumentBuilderFactory documentBuilderFactory = getSecuredDocumentBuilderFactory();
         documentBuilderFactory.setIgnoringComments(setIgnoreComments);
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        return documentBuilder;
+        return documentBuilderFactory.newDocumentBuilder();
 
     }
 }

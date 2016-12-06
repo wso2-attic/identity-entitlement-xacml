@@ -98,7 +98,7 @@ public class PolicyReader implements ErrorHandler {
      * @return
      */
     public boolean isValidPolicy(String policy) {
-        InputStream stream = null;
+        InputStream stream;
         try {
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
             handleDocument(builder.parse(stream));
@@ -113,7 +113,7 @@ public class PolicyReader implements ErrorHandler {
      * @return
      */
     public synchronized AbstractPolicy getPolicy(String policy) {
-        InputStream stream = null;
+        InputStream stream;
         try {
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
             return handleDocument(builder.parse(stream));
@@ -130,7 +130,7 @@ public class PolicyReader implements ErrorHandler {
      * @return target as PolicyTarget object
      */
     public PolicyTarget getTarget(String policy) {
-        InputStream stream = null;
+        InputStream stream;
         PolicyTarget policyTarget = new PolicyTarget();
         try {
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
@@ -154,13 +154,14 @@ public class PolicyReader implements ErrorHandler {
         Element root = doc.getDocumentElement();
         String name = root.getLocalName();
         // see what type of policy this is
-        if (name.equals("Policy")) {
-            return Policy.getInstance(root);
-        } else if (name.equals("PolicySet")) {
-            return PolicySet.getInstance(root, policyFinder);
-        } else {
-            // this isn't a root type that we know how to handle
-            throw new ParsingException("Unknown root document type: " + name);
+        switch (name) {
+            case "Policy":
+                return Policy.getInstance(root);
+            case "PolicySet":
+                return PolicySet.getInstance(root, policyFinder);
+            default:
+                // this isn't a root type that we know how to handle
+                throw new ParsingException("Unknown root document type: " + name);
         }
     }
 
@@ -169,7 +170,7 @@ public class PolicyReader implements ErrorHandler {
      */
     public void warning(SAXParseException exception) throws SAXException {
         if (logger.isWarnEnabled()) {
-            String message = null;
+            String message;
             message = "Warning on line " + exception.getLineNumber() + ": "
                     + exception.getMessage();
             logger.warn(message);

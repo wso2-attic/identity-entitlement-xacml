@@ -83,7 +83,7 @@ public class SimplePolicyCollection implements PolicyCollection {
     public AbstractPolicy getEffectivePolicy(EvaluationCtx context) throws EntitlementException {
 
         // setup a list of matching policies
-        ArrayList<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
+        ArrayList<AbstractPolicy> list = new ArrayList<>();
 
         for (Map.Entry<URI, AbstractPolicy> entry : policyCollection.entrySet()) {
 

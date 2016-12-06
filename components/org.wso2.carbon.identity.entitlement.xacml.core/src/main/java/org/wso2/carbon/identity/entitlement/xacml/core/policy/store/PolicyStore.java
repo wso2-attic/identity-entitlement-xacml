@@ -70,34 +70,32 @@ public abstract class PolicyStore {
 //            }
 
 
-        OMElement omElement = null;
+        OMElement omElement;
         try {
             omElement = AXIOMUtil.stringToOM(policy.getPolicy());
             policy.setPolicyType(omElement.getLocalName());
         } catch (XMLStreamException e) {
-//            nothing
+            throw new EntitlementException("Error in reading from policy", e);
         }
 
-        if (omElement != null) {
-            Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_REFERENCE);
-            if (iterator1 != null) {
-                ArrayList<String> policyReferences = new ArrayList<>();
-                while (iterator1.hasNext()) {
-                    OMElement policyReference = (OMElement) iterator1.next();
-                    policyReferences.add(policyReference.getText());
-                }
-                policy.setPolicyIdReferences(policyReferences.toArray(new String[policyReferences.size()]));
+        Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_REFERENCE);
+        if (iterator1 != null) {
+            ArrayList<String> policyReferences = new ArrayList<>();
+            while (iterator1.hasNext()) {
+                OMElement policyReference = (OMElement) iterator1.next();
+                policyReferences.add(policyReference.getText());
             }
+            policy.setPolicyIdReferences(policyReferences.toArray(new String[policyReferences.size()]));
+        }
 
-            Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_SET_REFERENCE);
-            if (iterator2 != null) {
-                ArrayList<String> policySetReferences = new ArrayList<>();
-                while (iterator2.hasNext()) {
-                    OMElement policySetReference = (OMElement) iterator2.next();
-                    policySetReferences.add(policySetReference.getText());
-                }
-                policy.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
+        Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_SET_REFERENCE);
+        if (iterator2 != null) {
+            ArrayList<String> policySetReferences = new ArrayList<>();
+            while (iterator2.hasNext()) {
+                OMElement policySetReference = (OMElement) iterator2.next();
+                policySetReferences.add(policySetReference.getText());
             }
+            policy.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
         }
         doAdd(policy);
     }
