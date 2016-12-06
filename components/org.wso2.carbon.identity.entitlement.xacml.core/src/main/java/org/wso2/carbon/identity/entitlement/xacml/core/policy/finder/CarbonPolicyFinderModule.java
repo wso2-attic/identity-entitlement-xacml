@@ -49,6 +49,10 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
     private PolicyStore policyStore;
 
+    public CarbonPolicyFinderModule(PolicyStore policyStore) {
+        this.policyStore = policyStore;
+    }
+
 
 //    /**
 //     * This method must be called by the module when its policies are updated
@@ -68,6 +72,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 //        EntitlementEngine.getInstance().getPolicyCache().invalidateCache();
 //    }
 
+
     @Override
     public String[] getOrderedPolicyIdentifiers() {
 
@@ -78,7 +83,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
             try {
                 policyDTOs = policyStore.readAllPolicyDTOs();
             } catch (EntitlementException e) {
-//                what to do
+                logger.error(e.getMessage());
             }
             Arrays.sort(policyDTOs, new PolicyOrderComparator());
             List<String> list = new ArrayList<>();
@@ -145,7 +150,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
         try {
             return (policyStore.readPolicyDTO(policyId)).getPolicy();
         } catch (EntitlementException e) {
-//            do nothing
+            logger.error(e.getMessage());
         }
         return null;
     }
@@ -155,7 +160,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
         try {
             return (policyStore.readPolicyDTO(policyId)).getPolicyOrder();
         } catch (EntitlementException e) {
-//            nothing
+            logger.error(e.getMessage());
         }
         return -1;
     }
@@ -170,7 +175,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
                 return dto.getPolicy();
             }
         } catch (EntitlementException e) {
-            // ignore
+            logger.error(e.getMessage());
         }
         return null;
     }
@@ -244,7 +249,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
             policyIds = Arrays.stream(policyStoreDTOs).map(PolicyStoreDTO::getPolicyId)
                     .collect(Collectors.toList());
         } catch (EntitlementException e) {
-//
+            logger.error(e.getMessage());
         }
         return policyIds.toArray(new String[policyIds.size()]);
     }

@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.identity.entitlement.xacml.core.pdp;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.Balana;
@@ -37,20 +41,49 @@ import java.util.List;
 import java.util.Set;
 
 
+@Component(
+        name = "org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine",
+        immediate = true
+)
 public class EntitlementEngine {
 
-    private PDP pdp;
+    private static PDP pdp;
     private Balana balana;
-    private PolicyFinder carbonPolicyFinder;
-    private static final Object lock = new Object();
+    private PolicyFinder carbonPolicyFinder = new PolicyFinder();
+    private Set<PolicyFinderModule> policyModules = new HashSet<>();
     private List<AttributeFinderModule> attributeModules = new ArrayList<>();
     private List<ResourceFinderModule> resourceModules = new ArrayList<>();
-    private static EntitlementEngine entitlementEngine;
-
+    private static EntitlementEngine entitlementEngine = new EntitlementEngine();
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
 
+    @Reference(
+            name = "policy.finder.service",
+            service = PolicyFinderModule.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterPolicyFinder"
+    )
+    protected void registerPolicyFinder(PolicyFinderModule policyFinderModule) {
+        policyModules.add(policyFinderModule);
+        carbonPolicyFinder.setModules(policyModules);
+        carbonPolicyFinder.init();
 
+        AttributeFinder attributeFinder = new AttributeFinder();
+        attributeFinder.setModules(attributeModules);
+
+        ResourceFinder resourceFinder = new ResourceFinder();
+        resourceFinder.setModules(resourceModules);
+        PDPConfig pdpConfig =
+                new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, false);
+        pdp = new PDP(pdpConfig);
+    }
+
+    protected void unregisterPolicyFinder(PolicyFinderModule policyFinderModule) {
+        policyModules.remove(policyFinderModule);
+        carbonPolicyFinder.setModules(policyModules);
+        carbonPolicyFinder.init();
+    }
 
     /**
      * Get a EntitlementEngine instance. This method will return an
@@ -59,36 +92,26 @@ public class EntitlementEngine {
      * @return EntitlementEngine instance for that tenant
      */
     public static EntitlementEngine getInstance() {
-
-
-        if (entitlementEngine == null) {
-            synchronized (lock) {
-                if (entitlementEngine == null) {
-                    entitlementEngine = new EntitlementEngine();
-                }
-            }
-        }
-
         return entitlementEngine;
     }
 
-    private EntitlementEngine() {
+    public EntitlementEngine() {
 
         // if PDP config file is not configured, then balana instance is created from default configurations
-        balana = Balana.getInstance();
+//        balana = Balana.getInstance();
 
 
-        AttributeFinder attributeFinder = new AttributeFinder();
-        attributeFinder.setModules(attributeModules);
+//        AttributeFinder attributeFinder = new AttributeFinder();
+//        attributeFinder.setModules(attributeModules);
+//
+//        ResourceFinder resourceFinder = new ResourceFinder();
+//        resourceFinder.setModules(resourceModules);
 
-        ResourceFinder resourceFinder = new ResourceFinder();
-        resourceFinder.setModules(resourceModules);
+//        setUPPolicyFinder();
 
-        setUPPolicyFinder();
-
-        PDPConfig pdpConfig =
-                new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, false);
-        pdp = new PDP(pdpConfig);
+//        PDPConfig pdpConfig =
+//                new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, false);
+//        pdp = new PDP(pdpConfig);
 
 
     }
@@ -120,7 +143,7 @@ public class EntitlementEngine {
     private void setUPPolicyFinder() {
 
         carbonPolicyFinder = new PolicyFinder();
-        Set<PolicyFinderModule> policyModules = new HashSet<>();
+
         CarbonPolicyFinder tmpCarbonPolicyFinder = new CarbonPolicyFinder();
         policyModules.add(tmpCarbonPolicyFinder);
         carbonPolicyFinder.setModules(policyModules);

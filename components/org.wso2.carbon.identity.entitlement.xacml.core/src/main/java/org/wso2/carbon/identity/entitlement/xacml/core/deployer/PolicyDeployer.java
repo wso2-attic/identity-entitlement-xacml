@@ -13,7 +13,6 @@ import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
-import org.wso2.carbon.identity.entitlement.xacml.core.internal.ServiceComponent;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class PolicyDeployer implements Deployer {
     private PolicyStore policyStore;
 
     @Reference(
-            name = "identity.policy.store.service",
+            name = "policy.store.service",
             service = PolicyStore.class,
             cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.STATIC

@@ -79,7 +79,8 @@
 
         <carbon.component>
             osgi.service;objectClass="org.wso2.carbon.deployment.engine.Deployer",
-            osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore"
+            osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore",
+            osgi.service;objectClass="org.wso2.balana.finder.PolicyFinderModule"
         </carbon.component>
 
     </properties>

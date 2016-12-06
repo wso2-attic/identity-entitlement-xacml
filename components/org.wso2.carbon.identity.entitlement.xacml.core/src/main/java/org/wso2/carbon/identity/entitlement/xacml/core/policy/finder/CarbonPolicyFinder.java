@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.finder;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.AbstractPolicy;
@@ -40,6 +44,7 @@ import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementExce
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.SimplePolicyCollection;
+import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,15 +61,21 @@ import java.util.Properties;
  * Policy finder of the WSO2 entitlement engine.  This an implementation of <code>PolicyFinderModule</code>
  * of Balana engine. Extensions can be plugged with this.
  */
+@Component(
+        name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.CarbonPolicyFinder",
+        immediate = true,
+        service = org.wso2.balana.finder.PolicyFinderModule.class
+)
 public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModule {
 
     private static final Logger logger = LoggerFactory.getLogger(CarbonPolicyFinder.class);
     public PolicyReader policyReader;
+    private PolicyStore policyStore;
     private List<PolicyFinderModule> finderModules = null;
+
     private PolicyCollection policyCollection;
 
     private List<PolicyStoreDTO> policyCollectionOrder = new ArrayList<>();
-
     private PolicyFinder finder;
     /**
      * this is a flag to keep whether init it has finished or not.
@@ -73,6 +84,16 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     private LinkedHashMap<URI, AbstractPolicy> policyReferenceCache = null;
     private int maxReferenceCacheEntries = EntitlementConstants.MAX_NO_OF_IN_MEMORY_POLICIES;
 
+    @Reference(
+            name = "policy.store.service",
+            service = PolicyStore.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.STATIC
+//            unbind = "unregisterPolicyStore"
+    )
+    protected void registerDeployer(PolicyStore policyStore) {
+        this.policyStore = policyStore;
+    }
 
     @Override
     public void init(PolicyFinder finder) {
@@ -120,7 +141,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 //            this.finderModules = new ArrayList<>(finderModules.keySet());
 //        }
         this.finderModules = new ArrayList<>();
-        this.finderModules.add(new CarbonPolicyFinderModule());
+        this.finderModules.add(new CarbonPolicyFinderModule(policyStore));
 
         PolicyCollection tempPolicyCollection = null;
 
