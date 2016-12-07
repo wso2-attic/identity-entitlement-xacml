@@ -76,7 +76,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     @Reference(
             name = "policy.finder.module.service",
             service = PolicyFinderModule.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unregisterPolicyFinderModule"
     )
@@ -91,8 +91,9 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     @Reference(
             name = "policy.collection.service",
             service = PolicyCollection.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.STATIC
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterPolicyCollection"
     )
     protected void registerPolicyCollection(PolicyCollection policyCollection) {
         try {
@@ -104,6 +105,9 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
             logger.error(e.getMessage());
         }
         this.policyCollection = policyCollection;
+    }
+
+    protected void unregisterPolicyCollection(PolicyCollection policyCollection) {
     }
 
     @Override

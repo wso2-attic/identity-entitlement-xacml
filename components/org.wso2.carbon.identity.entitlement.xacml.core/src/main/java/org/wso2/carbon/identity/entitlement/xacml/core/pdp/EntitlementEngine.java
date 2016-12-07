@@ -59,7 +59,7 @@ public class EntitlementEngine {
     @Reference(
             name = "policy.finder.service",
             service = PolicyFinderModule.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unregisterPolicyFinder"
     )

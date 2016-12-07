@@ -61,12 +61,16 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     @Reference(
             name = "policy.store.service",
             service = PolicyStore.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.STATIC
-//            unbind = "unregisterPolicyStore"
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterPolicyStore"
     )
     protected void registerPolicyStore(PolicyStore policyStore) {
         this.policyStore = policyStore;
+    }
+
+    protected void unregisterPolicyStore(PolicyStore policyStore) {
+
     }
 
 

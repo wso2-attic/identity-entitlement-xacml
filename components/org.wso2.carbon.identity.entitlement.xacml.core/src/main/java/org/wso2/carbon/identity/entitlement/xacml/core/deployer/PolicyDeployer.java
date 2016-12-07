@@ -39,18 +39,20 @@ public class PolicyDeployer implements Deployer {
     @Reference(
             name = "policy.collection.service",
             service = PolicyCollection.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.STATIC
-//            unbind = "unregisterPolicyCollection"
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterPolicyCollection"
     )
     protected void registerPolicyCollection(PolicyCollection policyCollection) {
         this.policyCollection = policyCollection;
     }
 
+    protected void unregisterPolicyCollection(PolicyCollection policyCollection) {
+    }
+
     @Override
     public void init() {
         logger.debug("Initializing the PolicyDeployer");
-//        policyStore = ServiceComponent.getPolicyStore();
         artifactType = new ArtifactType<>("policy");
         try {
             // TODO: 12/2/16 policy location configurable
@@ -103,8 +105,7 @@ public class PolicyDeployer implements Deployer {
             String policyPath = artifact.getFile().getAbsolutePath();
             String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
-            AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<",
-                    "><"));
+            AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
             policyCollection.addPolicy(abstractPolicy);
             return artifact.getName();
         } catch (IOException e) {
