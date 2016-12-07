@@ -57,11 +57,9 @@
         <findbugs.skip>true</findbugs.skip>
         <checkstyle.skip>true</checkstyle.skip>
         <private.package>
-            org.wso2.carbon.identity.entitlement.xacml.core.internal,
             org.wso2.carbon.identity.entitlement.xacml.core.deployer
         </private.package>
         <export.package>
-            !org.wso2.carbon.identity.entitlement.xacml.core.internal,
             !org.wso2.carbon.identity.entitlement.xacml.core.deployer,
             org.wso2.carbon.identity.entitlement.xacml.core.*
         </export.package>
