@@ -45,10 +45,8 @@ import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.SimpleP
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Policy finder of the WSO2 entitlement engine.  This an implementation of <code>PolicyFinderModule</code>
@@ -66,12 +64,6 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     private PolicyCollection policyCollection;
     private PolicyFinder finder;
     private List<PolicyFinderModule> finderModules = new ArrayList<>();
-    /**
-     * this is a flag to keep whether init it has finished or not.
-     */
-    private volatile boolean initFinish;
-    private LinkedHashMap<URI, AbstractPolicy> policyReferenceCache = null;
-    private int maxReferenceCacheEntries = EntitlementConstants.MAX_NO_OF_IN_MEMORY_POLICIES;
 
     @Reference(
             name = "policy.finder.module.service",
@@ -112,34 +104,8 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
     @Override
     public void init(PolicyFinder finder) {
-        initFinish = false;
         this.finder = finder;
-        init();
-        policyReferenceCache.clear();
-    }
-
-    private synchronized void init() {
-
-        if (initFinish) {
-            return;
-        }
-
-        logger.info("Initializing of policy store is started at :  " + new Date());
-
-
-        policyReferenceCache = new LinkedHashMap<URI, AbstractPolicy>() {
-
-            @Override
-            protected boolean removeEldestEntry(Map.Entry eldest) {
-                // oldest entry of the cache would be removed when max cache size become, i.e 50
-                return size() > maxReferenceCacheEntries;
-            }
-
-        };
-
         policyReader = PolicyReader.getInstance(finder);
-        initFinish = true;
-        logger.info("Initializing of policy store is finished at :  " + new Date());
     }
 
     @Override
@@ -179,18 +145,15 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     public PolicyFinderResult findPolicy(URI idReference, int type, VersionConstraints constraints,
                                          PolicyMetaData parentMetaData) {
 
-        AbstractPolicy policy = policyReferenceCache.get(idReference);
+        AbstractPolicy policy = null;
 
-        if (policy == null) {
-            if (this.finderModules != null) {
-                for (PolicyFinderModule finderModule : this.finderModules) {
-                    String policyString = finderModule.getReferencedPolicy(idReference.toString());
-                    if (policyString != null) {
-                        policy = policyReader.getPolicy(policyString);
-                        if (policy != null) {
-                            policyReferenceCache.put(idReference, policy);
-                            break;
-                        }
+        if (this.finderModules != null) {
+            for (PolicyFinderModule finderModule : this.finderModules) {
+                String policyString = finderModule.getReferencedPolicy(idReference.toString());
+                if (policyString != null) {
+                    policy = policyReader.getPolicy(policyString);
+                    if (policy != null) {
+                        break;
                     }
                 }
             }
