@@ -3,8 +3,11 @@ package org.wso2.carbon.identity.entitlement.xacml.core.policy.store;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.balana.AbstractPolicy;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
+import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.xacml.core.PolicyOrderComparator;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
@@ -32,7 +35,11 @@ import java.util.stream.Collectors;
 )
 public class FileBasedPolicyStore implements PolicyStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileBasedPolicyStore.class);
+
     private String policyLocation = "/home/senthalan/wso2_projects/wso2msf4j-2.1.0/deployment/xacml/policy/";
+    private String regString = "[a-zA-Z0-9._:-]{3,100}$";
+
 
     @Override
     public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {
@@ -83,17 +90,54 @@ public class FileBasedPolicyStore implements PolicyStore {
             }
             policyStoreDTO.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
         }
+        logger.debug("Policy read with policyId" + policyId);
         return policyStoreDTO;
     }
 
     @Override
-    public void addPolicy(PolicyStoreDTO policy) throws EntitlementException {
+    public void addPolicy(PolicyStoreDTO policy, boolean newPolicy) throws EntitlementException {
+        if (policy == null) {
+            throw new EntitlementException("Policy is null ");
+        }
+        if (!EntitlementUtil.validatePolicy(policy)) {
+            throw new EntitlementException("Invalid Entitlement Policy. " +
+                    "Policy is not valid according to XACML schema");
+        }
 
+        AbstractPolicy policyObj = PolicyReader.getInstance(null).getPolicy(policy.getPolicy());
+        if (policyObj == null) {
+            throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
+        }
+        String policyId = policyObj.getId().toASCIIString();
+        policy.setPolicyId(policyId);
+
+        if (policyId.contains("/")) {
+            throw new EntitlementException(
+                    " Policy Id cannot contain / characters. Please correct and upload again");
+        }
+        if (!policyId.matches(regString)) {
+            throw new EntitlementException(
+                    "An Entitlement Policy Id is not valid. It contains illegal characters");
+        }
+
+
+        if (isExistPolicy(policyId) && newPolicy) {
+            throw new EntitlementException(
+                    "An Entitlement Policy with the given PolicyId already exists");
+        }
+
+        //save the policy as .xml file
+        try {
+            Files.write(Paths.get(policyLocation + policyId + ".xml"), policy.getPolicy().getBytes("UTF-8"));
+            logger.debug("Policy created with policyId" + policyId);
+        } catch (IOException e) {
+            throw new EntitlementException("Error in creating file ", e);
+        }
     }
 
     @Override
     public void updatePolicy(PolicyStoreDTO policy) throws EntitlementException {
-
+            addPolicy(policy, false);
     }
 
     @Override
@@ -125,7 +169,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         List<PolicyStoreDTO> collect = Arrays.stream(policyStoreDTOs).
                 filter((policyDto -> policyDto.isActive() == active)).collect(Collectors.toList());
         policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
-        if (order){
+        if (order) {
             Arrays.sort(policyStoreDTOs, new PolicyOrderComparator());
         }
         return policyStoreDTOs;
@@ -139,7 +183,16 @@ public class FileBasedPolicyStore implements PolicyStore {
 
     @Override
     public void removePolicy(String policyId) throws EntitlementException {
-
+        if (!isExistPolicy(policyId)) {
+            logger.error("There is no policy in store with policyId : " + policyId);
+            return;
+        }
+        try {
+            Files.delete(Paths.get(policyLocation + policyId + ".xml"));
+            logger.debug("Policy deleted with policyId" + policyId);
+        } catch (IOException e) {
+            throw new EntitlementException("Error in accessing the file" ,e);
+        }
     }
 
 }

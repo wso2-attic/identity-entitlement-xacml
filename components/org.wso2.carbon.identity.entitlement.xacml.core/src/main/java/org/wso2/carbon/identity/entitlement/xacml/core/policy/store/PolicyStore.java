@@ -12,7 +12,7 @@ public interface PolicyStore {
      * @param policy PolicyStoreDTO which is going to added to the store
      * @throws EntitlementException custom exception
      */
-    public void addPolicy(PolicyStoreDTO policy) throws EntitlementException;
+    public void addPolicy(PolicyStoreDTO policy, boolean newPolicy) throws EntitlementException;
 
     /**
      * @param policy updated PolicyStoreDTO which is going to replaced in the store
