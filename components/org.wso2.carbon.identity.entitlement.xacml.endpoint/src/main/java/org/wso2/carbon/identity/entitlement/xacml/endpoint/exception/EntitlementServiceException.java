@@ -19,27 +19,27 @@
 package org.wso2.carbon.identity.entitlement.xacml.endpoint.exception;
 
 /**
- * EntityNotFoundException.
+ * EntitlementServiceException.
  */
-public class EntityNotFoundException extends Exception {
-    public EntityNotFoundException() {
+public class EntitlementServiceException extends Exception {
+    public EntitlementServiceException() {
         super();
     }
 
-    public EntityNotFoundException(String message) {
+    public EntitlementServiceException(String message) {
         super(message);
     }
 
-    public EntityNotFoundException(String message, Throwable cause) {
+    public EntitlementServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public EntityNotFoundException(Throwable cause) {
+    public EntitlementServiceException(Throwable cause) {
         super(cause);
     }
 
-    protected EntityNotFoundException(String message, Throwable cause,
-                                      boolean enableSuppression, boolean writableStackTrace) {
+    protected EntitlementServiceException(String message, Throwable cause,
+                                          boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -67,21 +67,20 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Deploying : " + artifact.getName());
         try {
             String policyId = artifact.getName();
-            if (! policyId.endsWith(".xml")) {
-                logger.debug("non-xml file deployed ");
-                return null;
-            }
-            policyId = policyId.substring(0, policyId.lastIndexOf("."));
-            String policyPath = artifact.getFile().getAbsolutePath();
-            String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
+            if (policyId.endsWith(".xml")) {
+                String policyPath = artifact.getFile().getAbsolutePath();
+                String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
-            AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
-            policyCollection.addPolicy(abstractPolicy);
-            return policyId;
+                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content
+                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " "));
+                if (abstractPolicy != null) {
+                    policyCollection.addPolicy(abstractPolicy);
+                }
+            }
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
         }
-        return null;
+        return artifact.getName();
     }
 
     @Override
@@ -90,6 +89,7 @@ public class PolicyDeployer implements Deployer {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key + "is not a String value");
         }
         logger.debug("Undeploying : " + key);
+        // TODO: 12/7/16 if the file name doesn't match this policyId then it will fail
         policyCollection.deletePolicy((String) key);
     }
 
@@ -98,20 +98,19 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Updating : " + artifact.getName());
         try {
             String policyId = artifact.getName();
-            if (! policyId.endsWith(".xml")) {
-                logger.debug("non-xml file updated ");
-                return null;
-            }
-            String policyPath = artifact.getFile().getAbsolutePath();
-            String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
+            if (policyId.endsWith(".xml")) {
+                String policyPath = artifact.getFile().getAbsolutePath();
+                String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
-            AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
-            policyCollection.addPolicy(abstractPolicy);
-            return artifact.getName();
+                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
+                if (abstractPolicy != null) {
+                    policyCollection.addPolicy(abstractPolicy);
+                }
+            }
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
         }
-        return null;
+        return artifact.getName();
     }
 
     @Override

@@ -54,9 +54,10 @@ public class FileBasedPolicyStore implements PolicyStore {
         if (policyObj == null) {
             throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
         }
+        content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ");
         PolicyStoreDTO policyStoreDTO = new PolicyStoreDTO();
         policyStoreDTO.setPolicyId(policyId);
-        policyStoreDTO.setPolicy(content.replaceAll(">\\s+<", "><"));
+        policyStoreDTO.setPolicy(content);
         policyStoreDTO.setActive(true);
         policyStoreDTO.setPolicyOrder(1);
 
@@ -90,7 +91,7 @@ public class FileBasedPolicyStore implements PolicyStore {
             }
             policyStoreDTO.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
         }
-        logger.debug("Policy read with policyId" + policyId);
+        logger.debug("Policy read with policyId : " + policyId);
         return policyStoreDTO;
     }
 
@@ -129,7 +130,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         //save the policy as .xml file
         try {
             Files.write(Paths.get(policyLocation + policyId + ".xml"), policy.getPolicy().getBytes("UTF-8"));
-            logger.debug("Policy created with policyId" + policyId);
+            logger.debug("Policy created with policyId : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in creating file ", e);
         }
@@ -189,7 +190,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         }
         try {
             Files.delete(Paths.get(policyLocation + policyId + ".xml"));
-            logger.debug("Policy deleted with policyId" + policyId);
+            logger.debug("Policy deleted with policyId : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in accessing the file" ,e);
         }

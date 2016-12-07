@@ -37,10 +37,20 @@ import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntityNotFoundException;
+import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XAMCLRequest;
+import org.wso2.msf4j.HttpStreamHandler;
+import org.wso2.msf4j.HttpStreamer;
 import org.wso2.msf4j.Microservice;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.util.Objects;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -48,6 +58,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -116,12 +127,12 @@ public class EntitlementAdminService implements Microservice {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "policy store available"),
             @ApiResponse(code = 404, message = "policy store not found")})
-    public Response getAllPolcies() throws EntityNotFoundException {
+    public Response getAllPolcies() throws EntitlementServiceException {
         try {
             PolicyStoreDTO[] policyDTOs = policyStore.readAllPolicyDTOs();
             return Response.status(Response.Status.OK).entity(policyDTOs).build();
         } catch (EntitlementException e) {
-            throw new EntityNotFoundException("not found ", e);
+            throw new EntitlementServiceException(e);
         }
     }
 
@@ -134,12 +145,32 @@ public class EntitlementAdminService implements Microservice {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Valid policy item found"),
             @ApiResponse(code = 404, message = "policy item not found")})
-    public Response getPolcy(@PathParam("policyId") String policyId) throws EntityNotFoundException {
+    public Response getPolcy(@PathParam("policyId") String policyId) throws EntitlementServiceException {
         try {
             PolicyStoreDTO policyDTO = policyStore.readPolicyDTO(policyId);
             return Response.status(Response.Status.OK).entity(policyDTO).build();
         } catch (EntitlementException e) {
-            throw new EntityNotFoundException("policy not found ", e);
+            throw new EntitlementServiceException(e);
+        }
+    }
+
+    @POST
+    @Path("/policy/create/{policyId}")
+    @ApiOperation(
+            value = "Upload the policy. PolicyId have to in the path param")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Policy Created"),
+            @ApiResponse(code = 404, message = "Error in creating Policy")})
+    public void createPolicy(@Context HttpStreamer httpStreamer,
+                             @PathParam("policyId") String policyId) throws EntitlementServiceException {
+        if (Objects.equals(policyId, "") || policyId == null) {
+            throw new EntitlementServiceException("Please provide policyId");
+        }
+        String fileName = policyId + ".xml";
+        try {
+            httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
+        } catch (FileNotFoundException e) {
+            throw new EntitlementServiceException(e);
         }
     }
 
@@ -166,5 +197,58 @@ public class EntitlementAdminService implements Microservice {
     @Override
     public String toString() {
         return "EntitlementAdminService-OSGi-bundle";
+    }
+
+
+
+    /**
+     *
+     */
+    private static class HttpStreamHandlerImpl implements HttpStreamHandler {
+
+        private static final Logger logger = LoggerFactory.getLogger(HttpStreamHandlerImpl.class);
+
+        private static final java.nio.file.Path MOUNT_PATH = Paths.get("./deployment/xacml/policy/");
+        private FileChannel fileChannel = null;
+        private org.wso2.msf4j.Response response;
+
+        public HttpStreamHandlerImpl(String fileName) throws FileNotFoundException {
+            File file = Paths.get(MOUNT_PATH.toString(), fileName).toFile();
+            if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
+                fileChannel = new FileOutputStream(file).getChannel();
+            }
+        }
+
+        @Override
+        public void init(org.wso2.msf4j.Response response) {
+            this.response = response;
+        }
+
+        @Override
+        public void end() throws Exception {
+            fileChannel.close();
+            response.setStatus(Response.Status.ACCEPTED.getStatusCode());
+            response.send();
+        }
+
+        @Override
+        public void chunk(ByteBuffer content) throws Exception {
+            if (fileChannel == null) {
+                throw new IOException("Unable to write file");
+            }
+            fileChannel.write(content);
+        }
+
+        @Override
+        public void error(Throwable cause) {
+            try {
+                if (fileChannel != null) {
+                    fileChannel.close();
+                }
+            } catch (IOException e) {
+                // Log if unable to close the output stream
+                logger.error("Unable to close file output stream", e);
+            }
+        }
     }
 }
