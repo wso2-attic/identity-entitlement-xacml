@@ -73,7 +73,7 @@ public class PolicyDeployer implements Deployer {
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
                 AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content
-                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " "));
+                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " "));
                 if (abstractPolicy != null) {
                     policyCollection.addPolicy(abstractPolicy);
                 }
@@ -103,7 +103,8 @@ public class PolicyDeployer implements Deployer {
                 String policyPath = artifact.getFile().getAbsolutePath();
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
-                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content.replaceAll(">\\s+<", "><"));
+                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content
+                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " "));
                 if (abstractPolicy != null) {
                     policyCollection.addPolicy(abstractPolicy);
                 }

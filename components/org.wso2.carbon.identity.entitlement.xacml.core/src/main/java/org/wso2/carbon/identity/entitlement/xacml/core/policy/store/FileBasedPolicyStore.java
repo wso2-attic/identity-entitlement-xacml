@@ -54,7 +54,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         if (policyObj == null) {
             throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
         }
-        content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ");
+        content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
         PolicyStoreDTO policyStoreDTO = new PolicyStoreDTO();
         policyStoreDTO.setPolicyId(policyId);
         policyStoreDTO.setPolicy(content);

@@ -9,10 +9,10 @@ public class EntitlementConstants {
 
     public static final String POLICY_BUNDLE_EXTENSTION = ".xml";
 
-    public static final int MAX_NO_OF_IN_MEMORY_POLICIES = 10;
 
-    public static final String MAX_POLICY_REFERENCE_ENTRIES = "PDP.References.MaxPolicyEntries";
-
+    /**
+     *  String constants used XACML policy
+     */
     public static final String POLICY_REFERENCE = "policyIdReferences";
 
     public static final String POLICY_SET_REFERENCE = "policySetIdReferences";
@@ -62,7 +62,7 @@ public class EntitlementConstants {
 
     public static final String SEARCH_WARNING_MESSAGE2 = "No Attributes are defined";
 
-    public static final String SEARCH_WARNING_MESSAGE3 = "Attribute Selector Element is contained " +
-            "with Xpath expression";
+    public static final String SEARCH_WARNING_MESSAGE3 = "Attribute Selector Element is contained with Xpath expression";
+
     public static final String SEARCH_WARNING_MESSAGE4 = "Apply Element is not contained within Condition Element";
 }
