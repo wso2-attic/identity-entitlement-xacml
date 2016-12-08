@@ -47,11 +47,16 @@ import java.util.Set;
 public class EntitlementEngine {
 
     private static PDP pdp;
-    private Balana balana;
-    private PolicyFinder carbonPolicyFinder = new PolicyFinder();
-    private Set<PolicyFinderModule> policyModules = new HashSet<>();
-    private List<AttributeFinderModule> attributeModules = new ArrayList<>();
-    private List<ResourceFinderModule> resourceModules = new ArrayList<>();
+    private static Balana balana;
+
+    private static PolicyFinder policyFinder = new PolicyFinder();
+    private static AttributeFinder attributeFinder = new AttributeFinder();
+    private static ResourceFinder resourceFinder = new ResourceFinder();
+
+    private static Set<PolicyFinderModule> policyModules = new HashSet<>();
+    private static List<AttributeFinderModule> attributeModules = new ArrayList<>();
+    private static List<ResourceFinderModule> resourceModules = new ArrayList<>();
+
     private static EntitlementEngine entitlementEngine = new EntitlementEngine();
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
@@ -64,35 +69,88 @@ public class EntitlementEngine {
             unbind = "unregisterPolicyFinder"
     )
     protected void registerPolicyFinder(PolicyFinderModule policyFinderModule) {
+        logger.debug("Policy finder module registered ", policyFinderModule.getClass().getName());
         policyModules.add(policyFinderModule);
-        carbonPolicyFinder.setModules(policyModules);
-        carbonPolicyFinder.init();
-
-        AttributeFinder attributeFinder = new AttributeFinder();
-        attributeFinder.setModules(attributeModules);
-
-        ResourceFinder resourceFinder = new ResourceFinder();
-        resourceFinder.setModules(resourceModules);
-
-        PDPConfig pdpConfig =
-                new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, false);
-        pdp = new PDP(pdpConfig);
+        policyFinder.setModules(policyModules);
+        policyFinder.init();
+        init();
     }
 
     protected void unregisterPolicyFinder(PolicyFinderModule policyFinderModule) {
+        logger.debug("Policy finder module unregistered ", policyFinderModule.getClass().getName());
         policyModules.remove(policyFinderModule);
-        carbonPolicyFinder.setModules(policyModules);
-        carbonPolicyFinder.init();
+        policyFinder.setModules(policyModules);
+        policyFinder.init();
+        init();
+    }
 
-        AttributeFinder attributeFinder = new AttributeFinder();
-        attributeFinder.setModules(attributeModules);
+//    @Reference(
+//            name = "Attribute.finder.service",
+//            service = AttributeFinderModule.class,
+//            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+//            policy = ReferencePolicy.DYNAMIC,
+//            unbind = "unregisterAttributeFinder"
+//    )
+//    protected void registerAttributeFinder(AttributeFinderModule attributeFinderModule) {
+//        logger.debug("Attribute finder module registered ", attributeFinderModule.getClass().getName());
+//        attributeModules.add(attributeFinderModule);
+//        attributeFinder.setModules(attributeModules);
+//        init();
+//    }
+//
+//    protected void unregisterAttributeFinder(AttributeFinderModule attributeFinderModule) {
+//        logger.debug("Attribute finder module unregistered ", attributeFinderModule.getClass().getName());
+//        attributeModules.remove(attributeFinderModule);
+//        attributeFinder.setModules(attributeModules);
+//        init();
+//    }
+//
+//    @Reference(
+//            name = "Resource.finder.service",
+//            service = ResourceFinderModule.class,
+//            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+//            policy = ReferencePolicy.DYNAMIC,
+//            unbind = "unregisterResourceFinder"
+//    )
+//    protected void registerResourceFinder(ResourceFinderModule resourceFinderModule) {
+//        logger.debug("Resource finder module registered ", resourceFinderModule.getClass().getName());
+//        resourceModules.add(resourceFinderModule);
+//        resourceFinder.setModules(resourceModules);
+//        init();
+//    }
+//
+//    protected void unregisterResourceFinder(ResourceFinderModule resourceFinderModule) {
+//        logger.debug("Resource finder module unregistered ", resourceFinderModule.getClass().getName());
+//        resourceModules.remove(resourceFinderModule);
+//        resourceFinder.setModules(resourceModules);
+//        init();
+//    }
 
-        ResourceFinder resourceFinder = new ResourceFinder();
-        resourceFinder.setModules(resourceModules);
 
-        PDPConfig pdpConfig =
-                new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, false);
-        pdp = new PDP(pdpConfig);
+    private void init() {
+        if (!policyModules.isEmpty() && !attributeModules.isEmpty() && !resourceModules.isEmpty()) {
+            policyFinder.init();
+            PDPConfig pdpConfig =
+                    new PDPConfig(attributeFinder, policyFinder, resourceFinder, false);
+            pdp = new PDP(pdpConfig);
+            logger.debug("Entitlement Engine PDP started");
+        } else {
+            if (policyModules.isEmpty()) {
+                logger.error("No policy Finder is registered ");
+            }
+            if (attributeModules.isEmpty()) {
+                logger.error("No attribute Finder is registered ");
+            }
+            if (resourceModules.isEmpty()) {
+                logger.error("No resource Finder is registered ");
+            }
+            // have to throw exception in implementation time
+            // starting pdp for in developing environment
+            PDPConfig pdpConfig =
+                    new PDPConfig(attributeFinder, policyFinder, resourceFinder, false);
+            pdp = new PDP(pdpConfig);
+            logger.debug("Entitlement Engine PDP started without all required finders");
+        }
     }
 
     /**
@@ -115,6 +173,10 @@ public class EntitlementEngine {
     public String evaluate(String xacmlRequest) {
 
         logger.debug("XACML Request : " + xacmlRequest);
+
+        if (pdp == null) {
+            init();
+        }
 
         String xacmlResponse = pdp.evaluate(xacmlRequest);
 
