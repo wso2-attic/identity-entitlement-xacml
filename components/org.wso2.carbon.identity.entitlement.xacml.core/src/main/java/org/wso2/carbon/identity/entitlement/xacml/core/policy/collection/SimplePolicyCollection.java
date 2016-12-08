@@ -76,6 +76,7 @@ public class SimplePolicyCollection implements PolicyCollection {
 
     @Override
     public boolean addPolicy(AbstractPolicy policy) {
+        logger.debug("Adding policy to SimplePolicyCollection : ", policy.getId().toString());
         return addPolicy(policy.getId(), policy);
     }
 
@@ -165,7 +166,7 @@ public class SimplePolicyCollection implements PolicyCollection {
 
     @Override
     public boolean deletePolicy(String policyId) {
-
+        logger.debug("Deleting policy to SimplePolicyCollection : ", policyId);
         return this.policyCollection.remove(policyId) != null;
     }
 

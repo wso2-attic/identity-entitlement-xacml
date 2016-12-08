@@ -91,7 +91,7 @@ public class FileBasedPolicyStore implements PolicyStore {
             policyStoreDTO.setPolicySetIdReferences(policySetReferences
                     .toArray(new String[policySetReferences.size()]));
         }
-        logger.debug("Policy read with policyId : " + policyId);
+        logger.debug("Reading policy from FileBasedPolicyStore : " + policyId);
         return policyStoreDTO;
     }
 
@@ -130,7 +130,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         try {
             Files.write(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION),
                     policy.getPolicy().getBytes("UTF-8"));
-            logger.debug("Policy created with policyId : " + policyId);
+            logger.debug("Creating policy from FileBasedPolicyStore : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in creating file ", e);
         }
@@ -138,7 +138,8 @@ public class FileBasedPolicyStore implements PolicyStore {
 
     @Override
     public void updatePolicy(PolicyStoreDTO policy) throws EntitlementException {
-            addPolicy(policy, false);
+        logger.debug("Updating policy from FileBasedPolicyStore : " + policy.getPolicyId());
+        addPolicy(policy, false);
     }
 
     @Override
@@ -190,7 +191,7 @@ public class FileBasedPolicyStore implements PolicyStore {
         }
         try {
             Files.delete(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
-            logger.debug("Policy deleted with policyId : " + policyId);
+            logger.debug("Deleting policy from FileBasedPolicyStore : " + policyId);;
         } catch (IOException e) {
             throw new EntitlementException("Error in accessing the file" ,e);
         }

@@ -69,7 +69,7 @@ public class EntitlementEngine {
             unbind = "unregisterPolicyFinder"
     )
     protected void registerPolicyFinder(PolicyFinderModule policyFinderModule) {
-        logger.debug("Policy finder module registered ", policyFinderModule.getClass().getName());
+        logger.debug("Registering Policy finder module ", policyFinderModule.getClass().getName());
         policyModules.add(policyFinderModule);
         policyFinder.setModules(policyModules);
         policyFinder.init();
@@ -77,7 +77,7 @@ public class EntitlementEngine {
     }
 
     protected void unregisterPolicyFinder(PolicyFinderModule policyFinderModule) {
-        logger.debug("Policy finder module unregistered ", policyFinderModule.getClass().getName());
+        logger.debug("Unregistering Policy finder module ", policyFinderModule.getClass().getName());
         policyModules.remove(policyFinderModule);
         policyFinder.setModules(policyModules);
         policyFinder.init();
@@ -92,14 +92,14 @@ public class EntitlementEngine {
 //            unbind = "unregisterAttributeFinder"
 //    )
 //    protected void registerAttributeFinder(AttributeFinderModule attributeFinderModule) {
-//        logger.debug("Attribute finder module registered ", attributeFinderModule.getClass().getName());
+//        logger.debug("Registering Attribute finder module ", attributeFinderModule.getClass().getName());
 //        attributeModules.add(attributeFinderModule);
 //        attributeFinder.setModules(attributeModules);
 //        init();
 //    }
 //
 //    protected void unregisterAttributeFinder(AttributeFinderModule attributeFinderModule) {
-//        logger.debug("Attribute finder module unregistered ", attributeFinderModule.getClass().getName());
+//        logger.debug("Unregistering finder module", attributeFinderModule.getClass().getName());
 //        attributeModules.remove(attributeFinderModule);
 //        attributeFinder.setModules(attributeModules);
 //        init();
@@ -113,14 +113,14 @@ public class EntitlementEngine {
 //            unbind = "unregisterResourceFinder"
 //    )
 //    protected void registerResourceFinder(ResourceFinderModule resourceFinderModule) {
-//        logger.debug("Resource finder module registered ", resourceFinderModule.getClass().getName());
+//        logger.debug("Registering Resource finder module ", resourceFinderModule.getClass().getName());
 //        resourceModules.add(resourceFinderModule);
 //        resourceFinder.setModules(resourceModules);
 //        init();
 //    }
 //
 //    protected void unregisterResourceFinder(ResourceFinderModule resourceFinderModule) {
-//        logger.debug("Resource finder module unregistered ", resourceFinderModule.getClass().getName());
+//        logger.debug("RUnregistering esource finder module", resourceFinderModule.getClass().getName());
 //        resourceModules.remove(resourceFinderModule);
 //        resourceFinder.setModules(resourceModules);
 //        init();
