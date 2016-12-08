@@ -14,6 +14,7 @@
     <artifactId>org.wso2.carbon.identity.entitlement.xacml.endpoint</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Identity Entitlement XAMCL Endpoint</name>
 
 
     <dependencies>
@@ -49,6 +50,8 @@
     </dependencies>
 
     <properties>
+        <findbugs.skip>true</findbugs.skip>
+
         <private.package>org.wso2.carbon.identity.entitlement.xacml.endpoint.*</private.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",

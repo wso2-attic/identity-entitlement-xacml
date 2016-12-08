@@ -37,13 +37,13 @@ public class FileBasedPolicyStore implements PolicyStore {
 
     private static final Logger logger = LoggerFactory.getLogger(FileBasedPolicyStore.class);
 
-    private String policyLocation = "/home/senthalan/wso2_projects/wso2msf4j-2.1.0/deployment/xacml/policy/";
+    private String policyLocation = EntitlementConstants.POLICY_STORE_LOCATION;
     private String regString = "[a-zA-Z0-9._:-]{3,100}$";
 
 
     @Override
     public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {
-        String policyPath = policyLocation + policyId + ".xml";
+        String policyPath = policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         String content;
         try {
             content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
@@ -129,7 +129,7 @@ public class FileBasedPolicyStore implements PolicyStore {
 
         //save the policy as .xml file
         try {
-            Files.write(Paths.get(policyLocation + policyId + ".xml"), policy.getPolicy().getBytes("UTF-8"));
+            Files.write(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION), policy.getPolicy().getBytes("UTF-8"));
             logger.debug("Policy created with policyId : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in creating file ", e);
@@ -149,7 +149,7 @@ public class FileBasedPolicyStore implements PolicyStore {
                     .filter(Files::isRegularFile)
                     .forEach(file -> {
                         String policyId = file.getFileName().toString();
-                        if (policyId.endsWith(".xml")) {
+                        if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
                             policyId = policyId.substring(0, policyId.lastIndexOf("."));
                             try {
                                 policyStoreDTOs.add(readPolicyDTO(policyId));
@@ -178,7 +178,7 @@ public class FileBasedPolicyStore implements PolicyStore {
 
     @Override
     public boolean isExistPolicy(String policyId) throws EntitlementException {
-        File policy = new File(policyLocation + policyId + ".xml");
+        File policy = new File(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION);
         return policy.exists();
     }
 
@@ -189,7 +189,7 @@ public class FileBasedPolicyStore implements PolicyStore {
             return;
         }
         try {
-            Files.delete(Paths.get(policyLocation + policyId + ".xml"));
+            Files.delete(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
             logger.debug("Policy deleted with policyId : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in accessing the file" ,e);

@@ -5,10 +5,9 @@ package org.wso2.carbon.identity.entitlement.xacml.core;
  */
 public class EntitlementConstants {
 
-    public static final String PDP_STORE = "PDP_STORE";
+    public static final String POLICY_STORE_LOCATION = "/home/senthalan/policy";
 
-    public static final String PAP_STORE = "PAP_STORE";
-
+    public static final String POLICY_BUNDLE_EXTENSTION = ".xml";
 
     public static final int MAX_NO_OF_IN_MEMORY_POLICIES = 10;
 
@@ -56,8 +55,8 @@ public class EntitlementConstants {
 
     public static final String ATTRIBUTE_VALUE = "AttributeValue";
 
-    public static final String UNKNOWN = "UNKNOWN";
 
+    public static final String UNKNOWN = "UNKNOWN";
 
     public static final String SEARCH_WARNING_MESSAGE1 = "Attribute values are not defined directly";
 
@@ -65,6 +64,5 @@ public class EntitlementConstants {
 
     public static final String SEARCH_WARNING_MESSAGE3 = "Attribute Selector Element is contained " +
             "with Xpath expression";
-
     public static final String SEARCH_WARNING_MESSAGE4 = "Apply Element is not contained within Condition Element";
 }

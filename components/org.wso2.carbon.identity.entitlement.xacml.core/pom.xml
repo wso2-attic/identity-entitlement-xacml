@@ -14,7 +14,7 @@
     <artifactId>org.wso2.carbon.identity.entitlement.xacml.core</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Identity Entitlement</name>
+    <name>WSO2 Carbon - Identity Entitlement XAMCL Core</name>
     <description>A custom wso2 products or solution</description>
     <url>http://wso2.org</url>
 

@@ -33,6 +33,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
@@ -166,7 +167,7 @@ public class EntitlementAdminService implements Microservice {
         if (Objects.equals(policyId, "") || policyId == null) {
             throw new EntitlementServiceException("Please provide policyId");
         }
-        String fileName = policyId + ".xml";
+        String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
         } catch (FileNotFoundException e) {
@@ -208,12 +209,12 @@ public class EntitlementAdminService implements Microservice {
 
         private static final Logger logger = LoggerFactory.getLogger(HttpStreamHandlerImpl.class);
 
-        private static final java.nio.file.Path MOUNT_PATH = Paths.get("./deployment/xacml/policy/");
+        private static final java.nio.file.Path POLICY_PATH = Paths.get(EntitlementConstants.POLICY_STORE_LOCATION);
         private FileChannel fileChannel = null;
         private org.wso2.msf4j.Response response;
 
         public HttpStreamHandlerImpl(String fileName) throws FileNotFoundException {
-            File file = Paths.get(MOUNT_PATH.toString(), fileName).toFile();
+            File file = Paths.get(POLICY_PATH.toString(), fileName).toFile();
             if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
                 fileChannel = new FileOutputStream(file).getChannel();
             }

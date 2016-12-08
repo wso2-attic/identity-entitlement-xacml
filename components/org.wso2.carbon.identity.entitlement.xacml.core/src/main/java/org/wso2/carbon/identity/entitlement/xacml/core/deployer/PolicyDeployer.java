@@ -12,6 +12,7 @@ import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
+import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
 
@@ -22,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * Carbon deployment listener listen to deployment/xamcl/policy directory and get the deploy, undeploy and update
+ * Carbon deployment listener listen to provided policy store directory and get the deploy, undeploy and update
  * events and keep the policy store updated.
  */
 @Component(
@@ -56,7 +57,7 @@ public class PolicyDeployer implements Deployer {
         artifactType = new ArtifactType<>("policy");
         try {
             // TODO: 12/2/16 policy location configurable
-            repository = new URL("file:xacml/policy");
+            repository = new URL("file:" + EntitlementConstants.POLICY_STORE_LOCATION);
         } catch (MalformedURLException e) {
             logger.error("Error while initializing deployer", e.getMessage());
         }
@@ -67,7 +68,7 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Deploying : " + artifact.getName());
         try {
             String policyId = artifact.getName();
-            if (policyId.endsWith(".xml")) {
+            if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
                 String policyPath = artifact.getFile().getAbsolutePath();
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
@@ -98,7 +99,7 @@ public class PolicyDeployer implements Deployer {
         logger.debug("Updating : " + artifact.getName());
         try {
             String policyId = artifact.getName();
-            if (policyId.endsWith(".xml")) {
+            if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
                 String policyPath = artifact.getFile().getAbsolutePath();
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
 
