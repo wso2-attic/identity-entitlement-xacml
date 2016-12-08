@@ -89,26 +89,22 @@ public class PolicyAttributeBuilder {
         }
 
         if (omElement != null) {
-            Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.
-                    TARGET_ELEMENT);
-            while (iterator1.hasNext()) {
-                OMElement targetElement = (OMElement) iterator1.next();
-                if (version == XACMLConstants.XACML_VERSION_3_0) {
-                    createMetaDataFromXACML3TargetElement(targetElement, attributeDTOs);
-                } else {
-                    createMetaDataFromTargetElement(targetElement, attributeDTOs);
-                }
+            Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.TARGET_ELEMENT);
+            if (iterator1 != null) {
+                iterator1.forEachRemaining(targetElement -> {
+                    if (version == XACMLConstants.XACML_VERSION_3_0) {
+                        createMetaDataFromXACML3TargetElement((OMElement) targetElement, attributeDTOs);
+                    } else {
+                        createMetaDataFromTargetElement((OMElement) targetElement, attributeDTOs);
+                    }
+                });
             }
 
-            Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementConstants.
-                    RULE_ELEMENT);
-            while (iterator2.hasNext()) {
-                OMElement targetElement = (OMElement) iterator2.next();
-                createMetaDataFromRuleElement(targetElement, attributeDTOs);
-            }
+            Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementConstants.RULE_ELEMENT);
+            iterator2.forEachRemaining(targetElement -> createMetaDataFromRuleElement((OMElement) targetElement,
+                    attributeDTOs));
 
-            Iterator iterator3 = omElement.getChildrenWithLocalName(EntitlementConstants.
-                    POLICY_ELEMENT);
+            Iterator iterator3 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_ELEMENT);
             while (iterator3.hasNext()) {
                 OMElement targetElement = (OMElement) iterator3.next();
                 createPolicyMetaData(targetElement.toString(), attributeDTOs);
@@ -126,8 +122,7 @@ public class PolicyAttributeBuilder {
      *                      in String format
      * @return list of AttributeDTO object which holds the policy meta data in String format
      */
-    public List<AttributeDTO> createMetaDataFromTargetElement(OMElement omElement,
-                                                              List<AttributeDTO> attributeDTOs) {
+    public List<AttributeDTO> createMetaDataFromTargetElement(OMElement omElement, List<AttributeDTO> attributeDTOs) {
 
         if (omElement != null) {
 

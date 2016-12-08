@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,11 +51,11 @@ public class FileBasedPolicyStore implements PolicyStore {
         } catch (IOException e) {
             throw new EntitlementException("Error in reading the policy : ", e);
         }
-        AbstractPolicy policyObj = PolicyReader.getInstance(null).getPolicy(content);
-        if (policyObj == null) {
-            throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
-        }
         content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
+
+        PolicyReader.getInstance(null).getPolicy(content)
+                .orElseThrow(()-> new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed"));
+
         PolicyStoreDTO policyStoreDTO = new PolicyStoreDTO();
         policyStoreDTO.setPolicyId(policyId);
         policyStoreDTO.setPolicy(content);
@@ -67,29 +68,28 @@ public class FileBasedPolicyStore implements PolicyStore {
         OMElement omElement;
         try {
             omElement = AXIOMUtil.stringToOM(content);
-            policyStoreDTO.setPolicyType(omElement.getLocalName());
         } catch (XMLStreamException e) {
-            throw new EntitlementException("Error in reading from policy", e);
+            throw new EntitlementException("Error in reading from policy ", e);
         }
+        if (omElement == null) {
+            throw new EntitlementException("Error in reading from policy OMElement is null");
+        }
+        policyStoreDTO.setPolicyType(omElement.getLocalName());
 
         Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_REFERENCE);
         if (iterator1 != null) {
             ArrayList<String> policyReferences = new ArrayList<>();
-            while (iterator1.hasNext()) {
-                OMElement policyReference = (OMElement) iterator1.next();
-                policyReferences.add(policyReference.getText());
-            }
+            iterator1.forEachRemaining(policyReference -> policyReferences.add(((OMElement)policyReference).getText()));
             policyStoreDTO.setPolicyIdReferences(policyReferences.toArray(new String[policyReferences.size()]));
         }
 
         Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_SET_REFERENCE);
         if (iterator2 != null) {
             ArrayList<String> policySetReferences = new ArrayList<>();
-            while (iterator2.hasNext()) {
-                OMElement policySetReference = (OMElement) iterator2.next();
-                policySetReferences.add(policySetReference.getText());
-            }
-            policyStoreDTO.setPolicySetIdReferences(policySetReferences.toArray(new String[policySetReferences.size()]));
+            iterator2.forEachRemaining(policyReference ->
+                    policySetReferences.add(((OMElement)policyReference).getText()));
+            policyStoreDTO.setPolicySetIdReferences(policySetReferences
+                    .toArray(new String[policySetReferences.size()]));
         }
         logger.debug("Policy read with policyId : " + policyId);
         return policyStoreDTO;
@@ -105,10 +105,9 @@ public class FileBasedPolicyStore implements PolicyStore {
                     "Policy is not valid according to XACML schema");
         }
 
-        AbstractPolicy policyObj = PolicyReader.getInstance(null).getPolicy(policy.getPolicy());
-        if (policyObj == null) {
-            throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
-        }
+        AbstractPolicy policyObj =  PolicyReader.getInstance(null).getPolicy(policy.getPolicy())
+                .orElseThrow(()-> new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed"));
+
         String policyId = policyObj.getId().toASCIIString();
         policy.setPolicyId(policyId);
 
@@ -129,7 +128,8 @@ public class FileBasedPolicyStore implements PolicyStore {
 
         //save the policy as .xml file
         try {
-            Files.write(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION), policy.getPolicy().getBytes("UTF-8"));
+            Files.write(Paths.get(policyLocation + policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION),
+                    policy.getPolicy().getBytes("UTF-8"));
             logger.debug("Policy created with policyId : " + policyId);
         } catch (IOException e) {
             throw new EntitlementException("Error in creating file ", e);

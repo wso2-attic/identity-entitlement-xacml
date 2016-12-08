@@ -71,12 +71,11 @@ public class PolicyDeployer implements Deployer {
             if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
                 String policyPath = artifact.getFile().getAbsolutePath();
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
+                content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ")
+                        .replaceAll("\r", " ").replaceAll("\t", " ");
+                PolicyReader.getInstance(null).getPolicy(content).
+                        ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
 
-                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content
-                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " "));
-                if (abstractPolicy != null) {
-                    policyCollection.addPolicy(abstractPolicy);
-                }
             }
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);
@@ -102,12 +101,10 @@ public class PolicyDeployer implements Deployer {
             if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
                 String policyPath = artifact.getFile().getAbsolutePath();
                 String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
-
-                AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(content
-                        .replaceAll(">\\s+<", "><").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " "));
-                if (abstractPolicy != null) {
-                    policyCollection.addPolicy(abstractPolicy);
-                }
+                content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ")
+                        .replaceAll("\r", " ").replaceAll("\t", " ");
+                PolicyReader.getInstance(null).getPolicy(content).
+                        ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
             }
         } catch (IOException e) {
             logger.error("Error in reading the policy : ", e);

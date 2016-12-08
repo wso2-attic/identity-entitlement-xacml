@@ -47,6 +47,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Policy finder of the WSO2 entitlement engine.  This an implementation of <code>PolicyFinderModule</code>
@@ -145,23 +146,21 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     public PolicyFinderResult findPolicy(URI idReference, int type, VersionConstraints constraints,
                                          PolicyMetaData parentMetaData) {
 
-        AbstractPolicy policy = null;
+        List<AbstractPolicy> policies = new ArrayList<>();
 
         if (this.finderModules != null) {
-            for (PolicyFinderModule finderModule : this.finderModules) {
+            finderModules.stream().filter(module -> policies.size() == 0).forEach(finderModule -> {
                 String policyString = finderModule.getReferencedPolicy(idReference.toString());
                 if (policyString != null) {
-                    policy = policyReader.getPolicy(policyString);
-                    if (policy != null) {
-                        break;
-                    }
+                    policyReader.getPolicy(policyString).ifPresent(policies::add);
                 }
-            }
+            });
         }
 
-        if (policy != null) {
+        if (policies.size() != 0) {
             // we found a valid version, so see if it's the right kind,
             // and if it is then we return it
+            AbstractPolicy policy = policies.get(0);
             if (type == PolicyReference.POLICY_REFERENCE) {
                 if (policy instanceof Policy) {
                     return new PolicyFinderResult(policy);

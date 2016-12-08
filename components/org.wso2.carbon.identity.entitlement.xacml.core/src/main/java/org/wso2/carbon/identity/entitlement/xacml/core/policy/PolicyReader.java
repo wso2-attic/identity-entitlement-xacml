@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  *
@@ -112,14 +113,14 @@ public class PolicyReader implements ErrorHandler {
      * @param policy
      * @return
      */
-    public synchronized AbstractPolicy getPolicy(String policy) {
+    public synchronized Optional<AbstractPolicy> getPolicy(String policy) {
         InputStream stream;
         try {
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
-            return handleDocument(builder.parse(stream));
+            return Optional.ofNullable(handleDocument(builder.parse(stream)));
         } catch (Exception e) {
             logger.error("Error while parsing the policy", e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -129,7 +130,7 @@ public class PolicyReader implements ErrorHandler {
      * @param policy policy as a String
      * @return target as PolicyTarget object
      */
-    public PolicyTarget getTarget(String policy) {
+    public Optional<PolicyTarget> getTarget(String policy) {
         InputStream stream;
         PolicyTarget policyTarget = new PolicyTarget();
         try {
@@ -137,10 +138,10 @@ public class PolicyReader implements ErrorHandler {
             AbstractPolicy abstractPolicy = handleDocument(builder.parse(stream));
             policyTarget.setTarget(abstractPolicy.getTarget());
             policyTarget.setPolicyId(abstractPolicy.getId().toString());
-            return policyTarget;
+            return Optional.of(policyTarget);
         } catch (Exception e) {
             logger.error("Error while parsing the policy", e);
-            return null;
+            return Optional.empty();
         }
     }
 
