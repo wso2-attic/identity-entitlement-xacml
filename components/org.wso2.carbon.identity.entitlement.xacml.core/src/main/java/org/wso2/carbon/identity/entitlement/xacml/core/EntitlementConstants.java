@@ -5,7 +5,7 @@ package org.wso2.carbon.identity.entitlement.xacml.core;
  */
 public class EntitlementConstants {
 
-    public static final String POLICY_STORE_LOCATION = "/home/senthalan/policy";
+    public static final String POLICY_STORE_LOCATION = "/home/senthalan/policy/";
 
     public static final String POLICY_BUNDLE_EXTENSTION = ".xml";
 
