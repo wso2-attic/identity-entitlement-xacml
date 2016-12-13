@@ -125,19 +125,19 @@ public class EntitlementUtil {
      * @param policy Policy to validate
      * @return return false, If validation failed or XML parsing failed or any IOException occurs
      */
-    public static boolean validatePolicy(PolicyStoreDTO policy) {
+    public static boolean validatePolicy(String policy) {
 //        try {
 
 
 
             // there may be cases where you only updated the policy meta data in PolicyDTO not the
             // actual XACML policy String
-            if (policy.getPolicy() == null || policy.getPolicy().trim().length() < 1) {
+            if (policy == null || policy.trim().length() < 1) {
                 return true;
             }
 
             //get policy version
-            String policyXMLNS = getPolicyVersion(policy.getPolicy());
+            String policyXMLNS = getPolicyVersion(policy);
 
             return true;
 //            Map<String, Schema> schemaMap = EntitlementServiceComponent.

@@ -44,6 +44,7 @@ import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyC
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.SimplePolicyCollection;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -110,21 +111,6 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     }
 
     @Override
-    public String getIdentifier() {
-        return super.getIdentifier();
-    }
-
-    @Override
-    public boolean isRequestSupported() {
-        return true;
-    }
-
-    @Override
-    public boolean isIdReferenceSupported() {
-        return true;
-    }
-
-    @Override
     public PolicyFinderResult findPolicy(EvaluationCtx context) {
 
         try {
@@ -173,5 +159,20 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
         }
 
         return new PolicyFinderResult();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return super.getIdentifier();
+    }
+
+    @Override
+    public boolean isRequestSupported() {
+        return true;
+    }
+
+    @Override
+    public boolean isIdReferenceSupported() {
+        return true;
     }
 }
