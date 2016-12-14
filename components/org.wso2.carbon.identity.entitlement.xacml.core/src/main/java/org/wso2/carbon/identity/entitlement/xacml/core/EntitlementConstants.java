@@ -7,7 +7,7 @@ public class EntitlementConstants {
 
     public static final String POLICY_STORE_LOCATION = "/home/senthalan/policy/";
 
-    public static final String POLICY_BUNDLE_EXTENSTION = ".xml";
+    public static final String POLICY_BUNDLE_EXTENSTION = ".xacml";
 
 
     /**

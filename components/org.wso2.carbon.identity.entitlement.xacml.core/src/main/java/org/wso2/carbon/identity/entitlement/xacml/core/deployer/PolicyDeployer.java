@@ -7,29 +7,33 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.AbstractPolicy;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.zip.ZipFile;
 
 /**
  * Carbon deployment listener listen to provided policy store directory and get the deploy, undeploy and update
  * events and keep the policy collection updated.
- *
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.deployer.PolicyDeployer",
@@ -86,7 +90,7 @@ public class PolicyDeployer implements Deployer {
     @Override
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
         logger.debug("Deploying : " + artifact.getName());
-        savePolicy(artifact, true);
+        readArtifact(artifact, true);
         return artifact.getName();
     }
 
@@ -112,7 +116,7 @@ public class PolicyDeployer implements Deployer {
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
         logger.debug("Updating : " + artifact.getName());
-        savePolicy(artifact, false);
+        readArtifact(artifact, false);
         return artifact.getName();
     }
 
@@ -126,30 +130,78 @@ public class PolicyDeployer implements Deployer {
         return artifactType;
     }
 
-    private synchronized void savePolicy(Artifact artifact, boolean newPolicy) {
-        try {
-            String policyId = artifact.getName();
-            if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
-                policyId = policyId.substring(0, policyId.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
-                String policyPath = artifact.getFile().getAbsolutePath();
-                String content = new String(Files.readAllBytes(Paths.get(policyPath)), "UTF-8");
-                content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ")
-                        .replaceAll("\r", " ").replaceAll("\t", " ");
-                PolicyDTO policyDTO = new PolicyDTO();
-                policyDTO.setPolicyId(policyId);
-                policyDTO.setPolicy(content);
-                policyDTO.setActive(true);
-                policyDTO.setPolicyOrder(1);
-                policyDTO.setVersion("1");
+    private synchronized void readArtifact(Artifact artifact, boolean newPolicy) {
+        String policyId = artifact.getName();
+        String policyIdFinal = policyId.substring(0,
+                policyId.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
 
-                policyStore.addPolicy(policyDTO, newPolicy);
-                PolicyReader.getInstance(null).getPolicy(content).
-                        ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
+        if (artifact.getName().endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
+            PolicyDTO policyDTO = new PolicyDTO();
+            ArrayList<Boolean> policySet = new ArrayList<>(2);
+            policySet.add(0, false);
+            policySet.add(1, false);
+            try (ZipFile zipFile = new ZipFile(artifact.getFile().getAbsoluteFile())) {
+                zipFile.stream()
+                        .forEach(zipEntry -> {
+                            if (zipEntry.getName().endsWith(".xml")) {
+                                try (InputStream inputStream = zipFile.getInputStream(zipEntry);
+                                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                                    String content = reader.lines().collect(Collectors.joining());
+                                    if (content != null) {
+                                        content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ")
+                                                .replaceAll("\r", " ").replaceAll("\t", " ");
+                                        policyDTO.setPolicyId(policyIdFinal);
+                                        policyDTO.setPolicy(content);
+                                        policySet.add(0, true);
+                                    }
+                                } catch (IOException e) {
+                                    logger.error("Error in reading the xml file ", e);
+                                }
+                            }
+                            if (zipEntry.getName().endsWith(".properties")) {
+                                try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+                                    Properties prop = new Properties();
+                                    prop.load(inputStream);
+                                    String active = prop.getProperty("active");
+                                    if (active == null) {
+                                        policyDTO.setActive(true);
+                                    } else {
+                                        policyDTO.setActive(Boolean.parseBoolean(active));
+                                    }
+                                    String order = prop.getProperty("order");
+                                    if (order == null) {
+                                        policyDTO.setPolicyOrder(1);
+                                    } else {
+                                        policyDTO.setPolicyOrder(Integer.parseInt(order));
+                                    }
+                                    String version = prop.getProperty("version");
+                                    if (version == null) {
+                                        policyDTO.setVersion(1);
+                                    } else {
+                                        policyDTO.setVersion(Integer.parseInt(version));
+                                    }
+                                    policySet.add(1, true);
+                                } catch (IOException e) {
+                                    logger.error("Error in reading the properties file ", e);
+                                } catch (NumberFormatException e) {
+                                    logger.error("Error in casting the property data ", e);
+                                }
+                            }
+                        });
+            } catch (IOException e) {
+                logger.error("Error in reading the xacml file ", e);
             }
-        } catch (IOException e) {
-            logger.error("Error in reading the policy : ", e);
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
+            if (policySet.get(0) && policySet.get(1)) {
+                try {
+                    policyStore.addPolicy(policyDTO, newPolicy);
+                    if (policyDTO.isActive()) {
+                        PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy()).
+                                ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
+                    }
+                } catch (EntitlementException e) {
+                    logger.error(e.getMessage());
+                }
+            }
         }
     }
 }

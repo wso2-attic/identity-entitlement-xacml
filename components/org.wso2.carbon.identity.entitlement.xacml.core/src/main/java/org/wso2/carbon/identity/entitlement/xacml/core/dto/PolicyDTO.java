@@ -13,7 +13,7 @@ public class PolicyDTO {
 
     private int policyOrder;
 
-    private String version;
+    private int version;
 
     public String getPolicy() {
         return policy;
@@ -47,11 +47,11 @@ public class PolicyDTO {
         this.policyOrder = policyOrder;
     }
 
-    public String getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 }

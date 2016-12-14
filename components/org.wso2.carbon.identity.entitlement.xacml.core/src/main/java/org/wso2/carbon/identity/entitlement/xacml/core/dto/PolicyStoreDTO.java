@@ -35,7 +35,7 @@ public class PolicyStoreDTO {
 
     private String policyType;
 
-    private String version;
+    private int version;
 
     private AttributeDTO[] attributeDTOs = new AttributeDTO[0];
 
@@ -67,11 +67,11 @@ public class PolicyStoreDTO {
         this.policyOrder = policyOrder;
     }
 
-    public String getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 
