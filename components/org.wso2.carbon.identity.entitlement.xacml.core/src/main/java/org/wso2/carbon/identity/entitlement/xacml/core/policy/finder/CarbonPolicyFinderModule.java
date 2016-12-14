@@ -24,7 +24,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.identity.entitlement.xacml.core.PolicyOrderComparator;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
@@ -38,13 +37,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * Abstract implementation of a policy finder module. This can be easily extended by any module
- * that support dynamic policy changes.
+ *
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.CarbonPolicyFinderModule",
@@ -75,152 +73,75 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
 
     @Override
-    public String[] getOrderedPolicyIdentifiers() {
-
-        logger.debug("Start retrieving ordered policy identifiers at : " + new Date());
-        String[] policyIdentifiers = getPolicyIdentifiers();
-        if (policyIdentifiers != null && !isPolicyOrderingSupport()) {
-            PolicyStoreDTO[] policyDTOs = new PolicyStoreDTO[0];
-            try {
-                policyDTOs = policyStore.readAllPolicyDTOs();
-            } catch (EntitlementException e) {
-                logger.error(e.getMessage());
-            }
-            Arrays.sort(policyDTOs, new PolicyOrderComparator());
-            List<String> list = new ArrayList<>();
-            List<String> finalList = new ArrayList<>();
-            // 1st put non -order items
-            list.addAll(Arrays.asList(policyIdentifiers));
-            for (PolicyStoreDTO dto : policyDTOs) {
-                list.remove(dto.getPolicyId());
-                finalList.add(dto.getPolicyId());
-            }
-            finalList.addAll(list);
-            return finalList.toArray(new String[finalList.size()]);
-        }
-        logger.debug("Finish retrieving ordered policy identifiers at : " + new Date());
-        return policyIdentifiers;
-    }
-
-    @Override
-    public String[] getActivePolicies() {
-        logger.debug("Start retrieving active policies at : " + new Date());
-        List<String> policies = new ArrayList<>();
-        String[] policyIdentifiers = getOrderedPolicyIdentifiers();
-        if (policyIdentifiers != null) {
-            for (String identifier : policyIdentifiers) {
-                if (!isPolicyDeActivationSupport()) {
-                    PolicyStoreDTO data = null;
-                    try {
-                        data = policyStore.readPolicyDTO(identifier);
-                    } catch (EntitlementException e) {
-//                        what to do
-                    }
-                    if (data != null && data.isActive()) {
-                        String policy = getPolicy(identifier);
-                        if (policy != null) {
-                            policies.add(policy);
-                        }
-                    }
-                } else {
-                    String policy = getPolicy(identifier);
-                    if (policy != null) {
-                        policies.add(policy);
-                    }
-                }
-            }
-        }
-        logger.debug("Finish retrieving active policies at : " + new Date());
-        return policies.toArray(new String[policies.size()]);
-
-    }
-
-
-    @Override
     public void init(Properties properties) throws EntitlementException {
         //
     }
 
     @Override
-    public String getModuleName() {
-        return MODULE_NAME;
+    public String[] getOrderedPolicyIdentifiers() throws EntitlementException {
+        logger.debug("Start retrieving ordered policy identifiers at : " + new Date());
+        List<String> policyIdentifiers = new ArrayList<>();
+        List<PolicyStoreDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(false, true));
+        policyStoreDTOs.forEach(policy -> policyIdentifiers.add(policy.getPolicyId()));
+        logger.debug("Finish retrieving ordered policy identifiers at : " + new Date());
+        return policyIdentifiers.toArray(new String[policyIdentifiers.size()]);
+    }
+
+
+    @Override
+    public String[] getActivePolicies() throws EntitlementException {
+        logger.debug("Start retrieving active policies at : " + new Date());
+        List<String> policyIdentifiers = new ArrayList<>();
+        List<PolicyStoreDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(true, true));
+        policyStoreDTOs.forEach(policy -> policyIdentifiers.add(policy.getPolicyId()));
+        logger.debug("Finish retrieving active policies at : " + new Date());
+        return policyIdentifiers.toArray(new String[policyIdentifiers.size()]);
     }
 
     @Override
-    public String getPolicy(String policyId) {
-        try {
-            return (policyStore.readPolicyDTO(policyId)).getPolicy();
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
-        return null;
-    }
+    public Map<String, Set<AttributeDTO>> getSearchAttributes(String identifier, Set<AttributeDTO> givenAttribute)
+            throws EntitlementException {
+        Map<String, Set<AttributeDTO>> attributeMap = new HashMap<>();
+        List<PolicyStoreDTO> policyDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(true, true));
 
-    @Override
-    public int getPolicyOrder(String policyId) {
-        try {
-            return (policyStore.readPolicyDTO(policyId)).getPolicyOrder();
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
-        return -1;
-    }
-
-    @Override
-    public String getReferencedPolicy(String policyId) {
-
-        // retrieve for policies that are not active
-        try {
-            PolicyStoreDTO dto = policyStore.readPolicyDTO(policyId);
-            if (dto != null && dto.getPolicy() != null && !dto.isActive()) {
-                return dto.getPolicy();
-            }
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
-        return null;
-    }
-
-    @Override
-    public Map<String, Set<AttributeDTO>> getSearchAttributes(String identifier, Set<AttributeDTO> givenAttribute) {
-        PolicyStoreDTO[] policyDTOs = null;
-        Map<String, Set<AttributeDTO>> attributeMap = null;
-        try {
-            policyDTOs = policyStore.readAllPolicyDTOs(true, true);
-        } catch (Exception e) {
-            logger.error("Policies can not be retrieved from registry policy finder module", e);
-        }
-
-        if (policyDTOs != null) {
-            attributeMap = new HashMap<>();
-            for (PolicyStoreDTO policyDTO : policyDTOs) {
-                Set<AttributeDTO> attributeDTOs =
-                        new HashSet<>(Arrays.asList(policyDTO.getAttributeDTOs()));
-                String[] policyIdRef = policyDTO.getPolicyIdReferences();
-                String[] policySetIdRef = policyDTO.getPolicySetIdReferences();
-
-                if (policyIdRef != null && policyIdRef.length > 0 || policySetIdRef != null &&
-                        policySetIdRef.length > 0) {
-                    for (PolicyStoreDTO dto : policyDTOs) {
-                        if (policyIdRef != null) {
-                            for (String policyId : policyIdRef) {
-                                if (dto.getPolicyId().equals(policyId)) {
-                                    attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs()));
-                                }
-                            }
-                        }
-                        for (String policySetId : policySetIdRef) {
-                            if (dto.getPolicyId().equals(policySetId)) {
-                                attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs()));
-                            }
-                        }
-                    }
-                }
-                attributeMap.put(policyDTO.getPolicyId(), attributeDTOs);
-            }
-        }
+        policyDTOs.forEach(policyDTO -> {
+            Set<AttributeDTO> attributeDTOs = new HashSet<>(Arrays.asList(policyDTO.getAttributeDTOs()));
+            List<String> policyIdRef = Arrays.asList(policyDTO.getPolicyIdReferences());
+            List<String>  policySetIdRef = Arrays.asList(policyDTO.getPolicySetIdReferences());
+            policyDTOs.forEach(dto -> {
+                policyIdRef.stream().filter(policyId -> dto.getPolicyId().equals(policyId))
+                        .forEach(policyId -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
+                policySetIdRef.stream().filter(policySetId -> dto.getPolicyId().equals(policySetId))
+                        .forEach(policySetId -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
+            });
+            attributeMap.put(policyDTO.getPolicyId(), attributeDTOs);
+        });
 
         return attributeMap;
+    }
+
+    @Override
+    public Optional<String> getReferencedPolicy(String policyId) throws EntitlementException {
+        PolicyStoreDTO dto = policyStore.readPolicyDTO(policyId);
+        if (dto != null && dto.getPolicy() != null && !dto.isActive()) {
+            return Optional.ofNullable(dto.getPolicy());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public String getPolicy(String policyId) throws EntitlementException {
+            return (policyStore.readPolicyDTO(policyId)).getPolicy();
+    }
+
+    @Override
+    public int getPolicyOrder(String policyId) throws EntitlementException {
+        return (policyStore.readPolicyDTO(policyId)).getPolicyOrder();
+    }
+
+    @Override
+    public String getModuleName() {
+        return MODULE_NAME;
     }
 
     @Override
@@ -230,7 +151,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
     @Override
     public boolean isDefaultCategoriesSupported() {
-        return false;
+        return true;
     }
 
     @Override
@@ -241,17 +162,5 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     @Override
     public boolean isPolicyDeActivationSupport() {
         return true;
-    }
-
-    protected String[] getPolicyIdentifiers() {
-        List<String> policyIds = new ArrayList<>();
-        try {
-            PolicyStoreDTO[] policyStoreDTOs = policyStore.readAllPolicyDTOs();
-            policyIds = Arrays.stream(policyStoreDTOs).map(PolicyStoreDTO::getPolicyId)
-                    .collect(Collectors.toList());
-        } catch (EntitlementException e) {
-            logger.error(e.getMessage());
-        }
-        return policyIds.toArray(new String[policyIds.size()]);
     }
 }

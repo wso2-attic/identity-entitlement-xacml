@@ -19,8 +19,10 @@
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.finder;
 
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.AttributeDTO;
+import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -82,7 +84,7 @@ public interface PolicyFinderModule {
      *
      * @return array of policies as Strings
      */
-    public String[] getActivePolicies();
+    public String[] getActivePolicies() throws EntitlementException;
 
     /**
      * gets all supported policy ids by this module
@@ -90,7 +92,7 @@ public interface PolicyFinderModule {
      *
      * @return array of policy ids as Strings
      */
-    public String[] getOrderedPolicyIdentifiers();
+    public String[] getOrderedPolicyIdentifiers() throws EntitlementException;
 
     /**
      * gets policy for given policy Id
@@ -98,10 +100,10 @@ public interface PolicyFinderModule {
      * @param policyId policy id as String value
      * @return policy as String
      */
-    public String getPolicy(String policyId);
+    public String getPolicy(String policyId) throws EntitlementException;
 
 
-    public int getPolicyOrder(String policyId);
+    public int getPolicyOrder(String policyId) throws EntitlementException;
 
 
     /**
@@ -113,7 +115,7 @@ public interface PolicyFinderModule {
      * @param policyId policy id as String value
      * @return reference policy as String
      */
-    public String getReferencedPolicy(String policyId);
+    public Optional<String> getReferencedPolicy(String policyId) throws EntitlementException;
 
     /**
      * gets attributes that are used for policy searching
@@ -123,7 +125,7 @@ public interface PolicyFinderModule {
      * @return return search attributes based on a given policy.  Map of policy id with search attributes.
      */
     public Map<String, Set<AttributeDTO>> getSearchAttributes(String identifier,
-                                                              Set<AttributeDTO> givenAttribute);
+                                                              Set<AttributeDTO> givenAttribute) throws EntitlementException;
 
     /**
      * gets support attribute searching scheme of this module

@@ -64,8 +64,9 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     private static final Logger logger = LoggerFactory.getLogger(CarbonPolicyFinder.class);
     public PolicyReader policyReader;
     private PolicyCollection policyCollection;
-    private PolicyFinder finder;
     private List<PolicyFinderModule> finderModules = new ArrayList<>();
+
+    // TODO: 12/14/16 Where to order the policies we have ?
 
     @Reference(
             name = "policy.finder.module.service",
@@ -106,7 +107,6 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
     @Override
     public void init(PolicyFinder finder) {
-        this.finder = finder;
         policyReader = PolicyReader.getInstance(finder);
     }
 
@@ -136,9 +136,11 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
         if (this.finderModules != null) {
             finderModules.stream().filter(module -> policies.size() == 0).forEach(finderModule -> {
-                String policyString = finderModule.getReferencedPolicy(idReference.toString());
-                if (policyString != null) {
-                    policyReader.getPolicy(policyString).ifPresent(policies::add);
+                try {
+                    finderModule.getReferencedPolicy(idReference.toString())
+                            .ifPresent(policy -> policyReader.getPolicy(policy).ifPresent(policies::add));
+                } catch (EntitlementException e) {
+                    logger.error(e.getMessage());
                 }
             });
         }
