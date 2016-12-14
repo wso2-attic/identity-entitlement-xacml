@@ -86,7 +86,7 @@ public interface PolicyCollection {
     public void setPolicyCombiningAlgorithm(PolicyCombiningAlgorithm algorithm);
 
 
-    public boolean deletePolicy(String policyId);
+    public boolean deletePolicy(String policyId) throws EntitlementException;
     public LinkedHashMap getPolicyMap() ;
     public void setPolicyMap(LinkedHashMap policyMap) ;
 

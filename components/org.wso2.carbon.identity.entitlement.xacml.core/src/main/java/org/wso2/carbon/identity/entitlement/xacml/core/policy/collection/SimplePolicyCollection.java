@@ -32,6 +32,7 @@ import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class SimplePolicyCollection implements PolicyCollection {
 
     @Override
     public boolean addPolicy(AbstractPolicy policy) {
-        logger.debug("Adding policy to SimplePolicyCollection : ", policy.getId().toString());
+        logger.debug("Adding policy to SimplePolicyCollection : "+ policy.getId().toString());
         return addPolicy(policy.getId(), policy);
     }
 
@@ -123,7 +124,7 @@ public class SimplePolicyCollection implements PolicyCollection {
                 logger.debug("No matching XACML policy found");
                 return null;
             case 1:
-                return ((AbstractPolicy) (list.get(0)));
+                return list.get(0);
             default:
                 return new PolicySet(parentId, combiningAlg, null, list);
         }
@@ -165,18 +166,22 @@ public class SimplePolicyCollection implements PolicyCollection {
     }
 
     @Override
-    public boolean deletePolicy(String policyId) {
-        logger.debug("Deleting policy to SimplePolicyCollection : ", policyId);
-        return this.policyCollection.remove(policyId) != null;
+    public boolean deletePolicy(String policyId) throws EntitlementException {
+        logger.debug("Deleting policy from SimplePolicyCollection : " + policyId);
+        try {
+            return policyCollection.remove(new URI(policyId)) != null;
+        } catch (URISyntaxException e) {
+            throw new EntitlementException("Error in casting policyId to URI ", e);
+        }
     }
 
     @Override
     public LinkedHashMap getPolicyMap() {
-        return this.policyCollection;
+        return policyCollection;
     }
 
     @Override
     public void setPolicyMap(LinkedHashMap policyMap) {
-        this.policyCollection = policyMap;
+        policyCollection = policyMap;
     }
 }
