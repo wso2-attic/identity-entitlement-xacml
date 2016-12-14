@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 /**
- * Carbon deployment listener listen to provided policy store directory and get the deploy, undeploy and update
- * events and keep the policy collection updated.
+ * It's a carbon deployer which will listen to the provided directory and keep the PolicyStore and PolicyCollection
+ * updated
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.deployer.PolicyDeployer",
@@ -90,7 +90,7 @@ public class PolicyDeployer implements Deployer {
     @Override
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
         logger.debug("Deploying : " + artifact.getName());
-        readArtifact(artifact, true);
+        readArtifact(artifact);
         return artifact.getName();
     }
 
@@ -116,7 +116,7 @@ public class PolicyDeployer implements Deployer {
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
         logger.debug("Updating : " + artifact.getName());
-        readArtifact(artifact, false);
+        readArtifact(artifact);
         return artifact.getName();
     }
 
@@ -130,10 +130,12 @@ public class PolicyDeployer implements Deployer {
         return artifactType;
     }
 
-    private synchronized void readArtifact(Artifact artifact, boolean newPolicy) {
-        String policyId = artifact.getName();
-        String policyIdFinal = policyId.substring(0,
-                policyId.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
+
+
+    private synchronized void readArtifact(Artifact artifact) {
+        String artifactName = artifact.getName();
+        String policyId = artifactName.substring(0,
+                artifactName.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
 
         if (artifact.getName().endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
             PolicyDTO policyDTO = new PolicyDTO();
@@ -150,7 +152,7 @@ public class PolicyDeployer implements Deployer {
                                     if (content != null) {
                                         content = content.replaceAll(">\\s+<", "><").replaceAll("\n", " ")
                                                 .replaceAll("\r", " ").replaceAll("\t", " ");
-                                        policyDTO.setPolicyId(policyIdFinal);
+                                        policyDTO.setPolicyId(policyId);
                                         policyDTO.setPolicy(content);
                                         policySet.add(0, true);
                                     }
@@ -170,7 +172,7 @@ public class PolicyDeployer implements Deployer {
                                     }
                                     String order = prop.getProperty("order");
                                     if (order == null) {
-                                        policyDTO.setPolicyOrder(1);
+                                        policyDTO.setPolicyOrder(0);
                                     } else {
                                         policyDTO.setPolicyOrder(Integer.parseInt(order));
                                     }
@@ -193,10 +195,15 @@ public class PolicyDeployer implements Deployer {
             }
             if (policySet.get(0) && policySet.get(1)) {
                 try {
+                    boolean newPolicy = !policyStore.isExistPolicy(policyDTO.getPolicyId());
                     policyStore.addPolicy(policyDTO, newPolicy);
                     if (policyDTO.isActive()) {
                         PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy()).
                                 ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
+                    } else {
+                        if  (!newPolicy) {
+                            policyCollection.deletePolicy(policyDTO.getPolicyId());
+                        }
                     }
                 } catch (EntitlementException e) {
                     logger.error(e.getMessage());
