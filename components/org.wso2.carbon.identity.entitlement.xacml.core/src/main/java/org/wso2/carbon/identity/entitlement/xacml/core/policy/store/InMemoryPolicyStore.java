@@ -28,10 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- *
+ * This uses in-memory map to maintain policies.
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.store.InMemoryPolicyStore",
@@ -72,12 +73,6 @@ public class InMemoryPolicyStore implements PolicyStore {
         if (!policyDTO.getPolicyId().matches(regString)) {
             throw new EntitlementException(
                     "An Entitlement Policy Id is not valid. It contains illegal characters");
-        }
-
-
-        if (isExistPolicy(policyDTO.getPolicyId()) && newPolicy) {
-            throw new EntitlementException(
-                    "An Entitlement Policy with the given PolicyId already exists");
         }
 
         AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy())
@@ -155,8 +150,13 @@ public class InMemoryPolicyStore implements PolicyStore {
     @Override
     public PolicyStoreDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException {
         PolicyStoreDTO[] policyStoreDTOs = readAllPolicyDTOs();
-        List<PolicyStoreDTO> collect = Arrays.stream(policyStoreDTOs).
-                filter((policyDto -> policyDto.isActive() == active)).collect(Collectors.toList());
+        List<PolicyStoreDTO> collect;
+        if (active) {
+            collect = Arrays.stream(policyStoreDTOs).
+                    filter((policyDto -> policyDto.isActive() == active)).collect(Collectors.toList());
+        } else {
+            collect = Arrays.stream(policyStoreDTOs).collect(Collectors.toList());
+        }
         policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
         if (order) {
             Arrays.sort(policyStoreDTOs, new PolicyOrderComparator());
@@ -176,6 +176,12 @@ public class InMemoryPolicyStore implements PolicyStore {
         }
         logger.debug("Removing policy from InMemoryPolicyStore : " + policyId);
         policyStore.remove(policyId);
+    }
+
+    @Override
+    public String[] getPolicyIdentifiers() {
+        Set<String> keySet = policyStore.keySet();
+        return keySet.toArray(new String[keySet.size()]);
     }
 
 }
