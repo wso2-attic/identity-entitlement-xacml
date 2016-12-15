@@ -1,21 +1,3 @@
-/*
-*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
-
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.finder;
 
 import org.osgi.service.component.annotations.Component;
@@ -107,7 +89,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
         policyDTOs.forEach(policyDTO -> {
             Set<AttributeDTO> attributeDTOs = new HashSet<>(Arrays.asList(policyDTO.getAttributeDTOs()));
             List<String> policyIdRef = Arrays.asList(policyDTO.getPolicyIdReferences());
-            List<String>  policySetIdRef = Arrays.asList(policyDTO.getPolicySetIdReferences());
+            List<String> policySetIdRef = Arrays.asList(policyDTO.getPolicySetIdReferences());
             policyDTOs.forEach(dto -> {
                 policyIdRef.stream().filter(policyId -> dto.getPolicyId().equals(policyId))
                         .forEach(policyId -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
@@ -123,7 +105,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     @Override
     public Optional<String> getReferencedPolicy(String policyId) throws EntitlementException {
         PolicyStoreDTO dto = policyStore.readPolicyDTO(policyId);
-        if (dto != null && dto.getPolicy() != null && !dto.isActive()) {
+        if (dto.getPolicy() != null && !dto.isActive()) {
             return Optional.ofNullable(dto.getPolicy());
         }
         return Optional.empty();
@@ -131,7 +113,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
     @Override
     public String getPolicy(String policyId) throws EntitlementException {
-            return (policyStore.readPolicyDTO(policyId)).getPolicy();
+        return (policyStore.readPolicyDTO(policyId)).getPolicy();
     }
 
     @Override
