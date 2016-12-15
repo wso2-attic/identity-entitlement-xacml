@@ -45,11 +45,14 @@ public class InMemoryPolicyStore implements PolicyStore {
     private String regString = "[a-zA-Z0-9._:-]{3,100}$";
 
     @Override
-    public Optional<PolicyStoreDTO> readPolicyDTO(String policyId) throws EntitlementException {
+    public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {
         isExistPolicy(policyId);
         PolicyStoreDTO policyStoreDTO = policyStore.get(policyId);
+        if (policyStoreDTO == null) {
+            throw new EntitlementException("There is no policy in InMemoryPolicyStore for policyId : " + policyId);
+        }
         logger.debug("Reading policy from InMemoryPolicyStore : " + policyId);
-        return Optional.ofNullable(policyStoreDTO);
+        return policyStoreDTO;
     }
 
     @Override
@@ -86,7 +89,7 @@ public class InMemoryPolicyStore implements PolicyStore {
         policyStoreDTO.setPolicyOrder(policyDTO.getPolicyOrder());
         policyStoreDTO.setVersion(policyDTO.getVersion());
 
-        Optional<PolicyStoreDTO> oldPolicy = readPolicyDTO(policyDTO.getPolicyId());
+        Optional<PolicyStoreDTO> oldPolicy = Optional.ofNullable(policyStore.get(policyDTO.getPolicyId()));
         if (oldPolicy.isPresent()) {
             if (!Objects.equals(oldPolicy.get().getPolicy(), policyDTO.getPolicy())) {
                 policyStoreDTO = generatePolicyData(policyStoreDTO);
