@@ -13,6 +13,7 @@ import org.wso2.carbon.deployment.engine.Deployer;
 import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyDTO;
+import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection;
@@ -27,6 +28,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
@@ -100,7 +103,6 @@ public class PolicyDeployer implements Deployer {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key + "is not a String value");
         }
         logger.debug("Undeploying : " + key);
-        // TODO: 12/7/16 if the file name doesn't match this policyId then it will fail
         String policyId = (String) key;
         if (policyId.endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
             policyId = policyId.substring(0, policyId.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
@@ -130,8 +132,6 @@ public class PolicyDeployer implements Deployer {
         return artifactType;
     }
 
-
-
     private synchronized void readArtifact(Artifact artifact) {
         String artifactName = artifact.getName();
         String policyId = artifactName.substring(0,
@@ -139,9 +139,9 @@ public class PolicyDeployer implements Deployer {
 
         if (artifact.getName().endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
             PolicyDTO policyDTO = new PolicyDTO();
-            ArrayList<Boolean> policySet = new ArrayList<>(2);
-            policySet.add(0, false);
-            policySet.add(1, false);
+            ArrayList<Boolean> policyRequirements = new ArrayList<>(2);
+            policyRequirements.add(0, false);
+            policyRequirements.add(1, false);
             try (ZipFile zipFile = new ZipFile(artifact.getFile().getAbsoluteFile())) {
                 zipFile.stream()
                         .forEach(zipEntry -> {
@@ -154,7 +154,7 @@ public class PolicyDeployer implements Deployer {
                                                 .replaceAll("\r", " ").replaceAll("\t", " ");
                                         policyDTO.setPolicyId(policyId);
                                         policyDTO.setPolicy(content);
-                                        policySet.add(0, true);
+                                        policyRequirements.add(0, true);
                                     }
                                 } catch (IOException e) {
                                     logger.error("Error in reading the xml file ", e);
@@ -182,7 +182,7 @@ public class PolicyDeployer implements Deployer {
                                     } else {
                                         policyDTO.setVersion(Integer.parseInt(version));
                                     }
-                                    policySet.add(1, true);
+                                    policyRequirements.add(1, true);
                                 } catch (IOException e) {
                                     logger.error("Error in reading the properties file ", e);
                                 } catch (NumberFormatException e) {
@@ -193,17 +193,14 @@ public class PolicyDeployer implements Deployer {
             } catch (IOException e) {
                 logger.error("Error in reading the xacml file ", e);
             }
-            if (policySet.get(0) && policySet.get(1)) {
+            if (policyRequirements.get(0) && policyRequirements.get(1)) {
                 try {
-                    boolean newPolicy = !policyStore.isExistPolicy(policyDTO.getPolicyId());
-                    policyStore.addPolicy(policyDTO, newPolicy);
+                    policyStore.addPolicy(policyDTO);
                     if (policyDTO.isActive()) {
                         PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy()).
                                 ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
                     } else {
-                        if  (!newPolicy) {
-                            policyCollection.deletePolicy(policyDTO.getPolicyId());
-                        }
+                        policyCollection.deletePolicy(policyDTO.getPolicyId());
                     }
                 } catch (EntitlementException e) {
                     logger.error(e.getMessage());

@@ -16,10 +16,6 @@ import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyAttributeBui
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.PolicyReader;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,17 +44,16 @@ public class InMemoryPolicyStore implements PolicyStore {
 
     private String regString = "[a-zA-Z0-9._:-]{3,100}$";
 
-
     @Override
-    public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {
+    public Optional<PolicyStoreDTO> readPolicyDTO(String policyId) throws EntitlementException {
         isExistPolicy(policyId);
         PolicyStoreDTO policyStoreDTO = policyStore.get(policyId);
         logger.debug("Reading policy from InMemoryPolicyStore : " + policyId);
-        return policyStoreDTO;
+        return Optional.ofNullable(policyStoreDTO);
     }
 
     @Override
-    public void addPolicy(PolicyDTO policyDTO, boolean newPolicy) throws EntitlementException {
+    public void addPolicy(PolicyDTO policyDTO) throws EntitlementException {
         if (policyDTO == null) {
             throw new EntitlementException("Policy is null ");
         }
@@ -75,11 +71,11 @@ public class InMemoryPolicyStore implements PolicyStore {
                     "An Entitlement Policy Id is not valid. It contains illegal characters");
         }
 
-        AbstractPolicy abstractPolicy =  PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy())
-                .orElseThrow(()-> new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed"));
+        AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy())
+                .orElseThrow(() -> new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed"));
 
         if (!Objects.equals(policyDTO.getPolicyId(), abstractPolicy.getId().toString())) {
-            throw new EntitlementException("The policy file name must match policyId " );
+            throw new EntitlementException("The policy file name must match policyId ");
         }
 
         PolicyStoreDTO policyStoreDTO = new PolicyStoreDTO();
@@ -90,13 +86,20 @@ public class InMemoryPolicyStore implements PolicyStore {
         policyStoreDTO.setPolicyOrder(policyDTO.getPolicyOrder());
         policyStoreDTO.setVersion(policyDTO.getVersion());
 
-        if (newPolicy) {
-            policyStoreDTO = generatePolicyData(policyStoreDTO);
-        } else {
-            if (!Objects.equals(readPolicyDTO(policyDTO.getPolicyId()).getPolicy(), policyDTO.getPolicy())) {
+        Optional<PolicyStoreDTO> oldPolicy = readPolicyDTO(policyDTO.getPolicyId());
+        if (oldPolicy.isPresent()) {
+            if (!Objects.equals(oldPolicy.get().getPolicy(), policyDTO.getPolicy())) {
                 policyStoreDTO = generatePolicyData(policyStoreDTO);
+            } else {
+                policyStoreDTO.setPolicyType(oldPolicy.get().getPolicyType());
+                policyStoreDTO.setAttributeDTOs(oldPolicy.get().getAttributeDTOs());
+                policyStoreDTO.setPolicyIdReferences(oldPolicy.get().getPolicyIdReferences());
+                policyStoreDTO.setPolicySetIdReferences(oldPolicy.get().getPolicySetIdReferences());
             }
+        } else {
+            policyStoreDTO = generatePolicyData(policyStoreDTO);
         }
+
         logger.debug("Adding policy to InMemory PolicyStore : " + policyStoreDTO.getPolicyId());
         policyStore.put(policyStoreDTO.getPolicyId(), policyStoreDTO);
     }
@@ -120,7 +123,7 @@ public class InMemoryPolicyStore implements PolicyStore {
         Iterator iterator1 = omElement.getChildrenWithLocalName(EntitlementConstants.POLICY_REFERENCE);
         if (iterator1 != null) {
             ArrayList<String> policyReferences = new ArrayList<>();
-            iterator1.forEachRemaining(policyReference -> policyReferences.add(((OMElement)policyReference).getText()));
+            iterator1.forEachRemaining(policyReference -> policyReferences.add(((OMElement) policyReference).getText()));
             policyStoreDTO.setPolicyIdReferences(policyReferences.toArray(new String[policyReferences.size()]));
         }
 
@@ -128,7 +131,7 @@ public class InMemoryPolicyStore implements PolicyStore {
         if (iterator2 != null) {
             ArrayList<String> policySetReferences = new ArrayList<>();
             iterator2.forEachRemaining(policyReference ->
-                    policySetReferences.add(((OMElement)policyReference).getText()));
+                    policySetReferences.add(((OMElement) policyReference).getText()));
             policyStoreDTO.setPolicySetIdReferences(policySetReferences
                     .toArray(new String[policySetReferences.size()]));
         }
@@ -138,7 +141,7 @@ public class InMemoryPolicyStore implements PolicyStore {
     @Override
     public void updatePolicy(PolicyDTO policy) throws EntitlementException {
         logger.debug("Updating policy from InMemoryPolicyStore : " + policy.getPolicyId());
-        addPolicy(policy, false);
+        addPolicy(policy);
     }
 
     @Override
@@ -153,14 +156,14 @@ public class InMemoryPolicyStore implements PolicyStore {
         List<PolicyStoreDTO> collect;
         if (active) {
             collect = Arrays.stream(policyStoreDTOs).
-                    filter((policyDto -> policyDto.isActive() == active)).collect(Collectors.toList());
+                    filter((PolicyStoreDTO::isActive)).collect(Collectors.toList());
         } else {
             collect = Arrays.stream(policyStoreDTOs).collect(Collectors.toList());
         }
-        policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
         if (order) {
-            Arrays.sort(policyStoreDTOs, new PolicyOrderComparator());
+            collect.sort(new PolicyOrderComparator());
         }
+        policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
         return policyStoreDTOs;
     }
 
