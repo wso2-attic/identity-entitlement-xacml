@@ -5,7 +5,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.balana.ParsingException;
 import org.wso2.balana.XACMLConstants;
+import org.wso2.balana.attr.AttributeValue;
+import org.wso2.balana.attr.BooleanAttribute;
+import org.wso2.balana.attr.DateAttribute;
+import org.wso2.balana.attr.DateTimeAttribute;
+import org.wso2.balana.attr.DoubleAttribute;
+import org.wso2.balana.attr.HexBinaryAttribute;
+import org.wso2.balana.attr.IntegerAttribute;
+import org.wso2.balana.attr.StringAttribute;
+import org.wso2.balana.attr.TimeAttribute;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.FirstApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
@@ -23,6 +33,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
 
 /**
  *
@@ -206,5 +220,61 @@ public class EntitlementUtil {
         documentBuilderFactory.setIgnoringComments(setIgnoreComments);
         return documentBuilderFactory.newDocumentBuilder();
 
+    }
+
+    /**
+     * Return the Attribute Value Object for given string value and data type
+     *
+     * @param value attribute value as a String object
+     * @param type  attribute data type name as String object
+     * @return Attribute Value Object
+     * @throws EntitlementException throws
+     */
+    public static AttributeValue getAttributeValue(final String value, String type)
+            throws EntitlementException {
+
+        try {
+            if (StringAttribute.identifier.equals(type)) {
+                return new StringAttribute(value);
+            }
+            if (IntegerAttribute.identifier.equals(type)) {
+                return new IntegerAttribute(Long.parseLong(value));
+            }
+            if (BooleanAttribute.identifier.equals(type)) {
+                return BooleanAttribute.getInstance(value);
+            }
+            if (DoubleAttribute.identifier.equals(type)) {
+                return new DoubleAttribute(Double.parseDouble(value));
+            }
+            if (DateAttribute.identifier.equals(type)) {
+                return new DateAttribute(DateFormat.getDateInstance().parse(value));
+            }
+            if (DateTimeAttribute.identifier.equals(type)) {
+                return new DateTimeAttribute(DateFormat.getDateInstance().parse(value));
+            }
+            if (TimeAttribute.identifier.equals(type)) {
+                return TimeAttribute.getInstance(value);
+            }
+            if (HexBinaryAttribute.identifier.equals(type)) {
+                return new HexBinaryAttribute(value.getBytes());
+            }
+
+            return new AttributeValue(new URI(type)) {
+                @Override
+                public String encode() {
+                    return value;
+                }
+            };
+
+        } catch (ParsingException e) {
+            throw new EntitlementException("Error while creating AttributeValue object for given " +
+                    "string value and data type");
+        } catch (ParseException e) {
+            throw new EntitlementException("Error while creating AttributeValue object for given " +
+                    "string value and data type");
+        } catch (URISyntaxException e) {
+            throw new EntitlementException("Error while creating AttributeValue object for given " +
+                    "string value and data type");
+        }
     }
 }

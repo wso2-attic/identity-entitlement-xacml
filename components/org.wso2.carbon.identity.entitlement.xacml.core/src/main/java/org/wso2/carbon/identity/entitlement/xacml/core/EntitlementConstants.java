@@ -55,6 +55,13 @@ public class EntitlementConstants {
 
     public static final String ATTRIBUTE_VALUE = "AttributeValue";
 
+    public static final String SUBJECT_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+
+    public static final String ENVIRONMENT_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
+
+    public static final String RESOURCE_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+
+    public static final String ACTION_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
     public static final String UNKNOWN = "UNKNOWN";
 

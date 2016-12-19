@@ -70,26 +70,26 @@ public class EntitlementEngine {
         init();
     }
 
-//    @Reference(
-//            name = "Attribute.finder.service",
-//            service = AttributeFinderModule.class,
-//            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-//            policy = ReferencePolicy.DYNAMIC,
-//            unbind = "unregisterAttributeFinder"
-//    )
-//    protected void registerAttributeFinder(AttributeFinderModule attributeFinderModule) {
-//        logger.debug("Registering Attribute finder module ", attributeFinderModule.getClass().getName());
-//        attributeModules.add(attributeFinderModule);
-//        attributeFinder.setModules(attributeModules);
-//        init();
-//    }
-//
-//    protected void unregisterAttributeFinder(AttributeFinderModule attributeFinderModule) {
-//        logger.debug("Unregistering finder module", attributeFinderModule.getClass().getName());
-//        attributeModules.remove(attributeFinderModule);
-//        attributeFinder.setModules(attributeModules);
-//        init();
-//    }
+    @Reference(
+            name = "Attribute.finder.service",
+            service = AttributeFinderModule.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterAttributeFinder"
+    )
+    protected void registerAttributeFinder(AttributeFinderModule attributeFinderModule) {
+        logger.debug("Registering Attribute finder module ", attributeFinderModule.getClass().getName());
+        attributeModules.add(attributeFinderModule);
+        attributeFinder.setModules(attributeModules);
+        init();
+    }
+
+    protected void unregisterAttributeFinder(AttributeFinderModule attributeFinderModule) {
+        logger.debug("Unregistering finder module", attributeFinderModule.getClass().getName());
+        attributeModules.remove(attributeFinderModule);
+        attributeFinder.setModules(attributeModules);
+        init();
+    }
 //
 //    @Reference(
 //            name = "Resource.finder.service",
@@ -114,6 +114,7 @@ public class EntitlementEngine {
 
 
     private void init() {
+
         if (!policyModules.isEmpty() && !attributeModules.isEmpty() && !resourceModules.isEmpty()) {
             policyFinder.init();
             PDPConfig pdpConfig =

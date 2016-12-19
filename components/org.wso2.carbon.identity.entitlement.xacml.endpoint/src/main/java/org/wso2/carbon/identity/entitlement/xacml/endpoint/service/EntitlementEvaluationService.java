@@ -9,16 +9,11 @@ import io.swagger.annotations.ApiResponses;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.ctx.ResponseCtx;
-import org.wso2.balana.ctx.xacml3.RequestCtx;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionRequestModel;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionResponseModel;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XacmlRequestModel;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.util.EntitlementEndpointConstants;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.util.JSONRequestParser;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.util.JSONResponseWriter;
 import org.wso2.msf4j.Microservice;
 
 import javax.ws.rs.Consumes;
