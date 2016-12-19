@@ -61,9 +61,13 @@
             org.slf4j; version="${org.slf4j.import.version.range}",
             io.swagger.annotations.*,
             org.wso2.carbon.messaging.*,
-            org.wso2.carbon.identity.entitlement.xacml.core.*
+            org.wso2.carbon.identity.entitlement.xacml.core.*,
+            com.google.gson.*,
+            javax.xml.*,
+            org.wso2.balana.*; version="${balana.import.version.range}"
         </import.package>
         <carbon.component>
+            osgi.service; objectClass="org.wso2.msf4j.Microservice",
             osgi.service; objectClass="org.wso2.msf4j.Microservice"
         </carbon.component>
     </properties>

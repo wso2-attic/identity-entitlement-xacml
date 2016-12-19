@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.balana.Balana;
 import org.wso2.balana.PDP;
 import org.wso2.balana.PDPConfig;
+import org.wso2.balana.ctx.AbstractRequestCtx;
+import org.wso2.balana.ctx.ResponseCtx;
 import org.wso2.balana.finder.AttributeFinder;
 import org.wso2.balana.finder.AttributeFinderModule;
 import org.wso2.balana.finder.PolicyFinder;
@@ -16,6 +18,7 @@ import org.wso2.balana.finder.PolicyFinderModule;
 import org.wso2.balana.finder.ResourceFinder;
 import org.wso2.balana.finder.ResourceFinderModule;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -148,11 +151,14 @@ public class EntitlementEngine {
 
 
     /**
-     * Test request for PDP
+     * Evaluates the given XACML request and returns the Response that the EntitlementEngine will
+     * hand back to the PEP. PEP needs construct the XACML request before sending it to the
+     * EntitlementEngine
      *
      * @param xacmlRequest XACML request as String
-     * @return response as String
+     * @return XACML response as String
      */
+
     public String evaluate(String xacmlRequest) {
 
         logger.debug("XACML Request : " + xacmlRequest);
@@ -168,8 +174,36 @@ public class EntitlementEngine {
         return xacmlResponse;
     }
 
-    public String testPolicy(String action, String resource, String subject, String environment) {
-        String xacmlRequest = EntitlementUtil.createSimpleXACMLRequest(subject, resource, action, environment);
+    /**
+     * Evaluates the given XACML request and returns the Response that the EntitlementEngine will
+     * hand back to the PEP. Here PEP does not need construct the XACML request before sending it to the
+     * EntitlementEngine. Just can send the single attribute value. But here default attribute ids and data types
+     * are used
+     *
+     * @param subject     subject
+     * @param resource    resource
+     * @param action      action
+     * @param environment environment
+     * @return XACML request as String object
+     */
+    public String evaluate(String action, String resource, String subject, String[] environment) {
+        String environmentValue = null;
+        if (environment != null && environment.length > 0) {
+            environmentValue = environment[0];
+        }
+
+        String xacmlRequest = EntitlementUtil.createSimpleXACMLRequest(subject, resource, action, environmentValue);
         return evaluate(xacmlRequest);
+    }
+
+    /**
+     * Evaluates XACML request directly. This is used by advance search module.
+     * Therefore caching and logging has not be implemented for this
+     *
+     * @param requestCtx Balana Object model for request
+     * @return ResponseCtx  Balana Object model for response
+     */
+    public ResponseCtx evaluateByContext(AbstractRequestCtx requestCtx) {
+        return pdp.evaluate(requestCtx);
     }
 }

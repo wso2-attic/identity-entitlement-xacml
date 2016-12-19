@@ -34,9 +34,9 @@ import javax.ws.rs.ext.ExceptionMapper;
 public class EntityNotFoundMapper implements ExceptionMapper<EntitlementServiceException> {
     @Override
     public Response toResponse(EntitlementServiceException ex) {
-        return Response.status(404).
-                entity(ex.getMessage() + " [from EntityNotFoundMapper]").
-                type("text/plain").
-                build();
+        return Response.status(ex.getCode())
+                .entity(ex.getMessage())
+                .type("text/plain")
+                .build();
     }
 }

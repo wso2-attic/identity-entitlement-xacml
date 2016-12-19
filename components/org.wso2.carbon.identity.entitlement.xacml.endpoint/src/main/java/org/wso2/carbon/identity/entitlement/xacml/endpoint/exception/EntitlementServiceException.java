@@ -18,28 +18,37 @@
  */
 package org.wso2.carbon.identity.entitlement.xacml.endpoint.exception;
 
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * EntitlementServiceException.
  */
 public class EntitlementServiceException extends Exception {
-    public EntitlementServiceException() {
-        super();
+    //Corresponds to error code in AbstractException
+    @XmlElement
+    private int code;
+    //Corresponds to error message in AbstractException
+    @XmlElement
+    private String message;
+
+    public EntitlementServiceException(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
-    public EntitlementServiceException(String message) {
-        super(message);
+    public int getCode() {
+        return code;
     }
 
-    public EntitlementServiceException(String message, Throwable cause) {
-        super(message, cause);
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public EntitlementServiceException(Throwable cause) {
-        super(cause);
+    public String getMessage() {
+        return message;
     }
 
-    protected EntitlementServiceException(String message, Throwable cause,
-                                          boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

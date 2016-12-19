@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.identity.entitlement.xacml.endpoint;
+package org.wso2.carbon.identity.entitlement.xacml.endpoint.service;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Contact;
@@ -36,10 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
-import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
-import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.XAMCLRequest;
 import org.wso2.msf4j.HttpStreamHandler;
 import org.wso2.msf4j.HttpStreamer;
 import org.wso2.msf4j.Microservice;
@@ -52,9 +49,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.util.Objects;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -67,7 +62,7 @@ import javax.ws.rs.core.Response;
  * EntitlementAdmin micro service.
  */
 @Component(
-        name = "org.wso2.carbon.identity.entitlement.xacml.endpoint.EntitlementAdminService",
+        name = "org.wso2.carbon.identity.entitlement.xacml.endpoint.service.EntitlementAdminService",
         service = Microservice.class,
         immediate = true
 )
@@ -82,7 +77,7 @@ import javax.ws.rs.core.Response;
                         url = "http://wso2.com"
                 ))
 )
-@Path("/entitlement")
+@Path("/entitlement/admin")
 public class EntitlementAdminService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementAdminService.class);
@@ -133,7 +128,7 @@ public class EntitlementAdminService implements Microservice {
             PolicyStoreDTO[] policyDTOs = policyStore.readAllPolicyDTOs();
             return Response.status(Response.Status.OK).entity(policyDTOs).build();
         } catch (EntitlementException e) {
-            throw new EntitlementServiceException(e);
+            throw new EntitlementServiceException(404, "There is no policyStore");
         }
     }
 
@@ -151,7 +146,7 @@ public class EntitlementAdminService implements Microservice {
             PolicyStoreDTO policyDTO = policyStore.readPolicyDTO(policyId);
             return Response.status(Response.Status.OK).entity(policyDTO).build();
         } catch (EntitlementException e) {
-            throw new EntitlementServiceException(e);
+            throw new EntitlementServiceException(404, "There is no policy with policyId : " + policyId);
         }
     }
 
@@ -165,34 +160,14 @@ public class EntitlementAdminService implements Microservice {
     public void createPolicy(@Context HttpStreamer httpStreamer,
                              @PathParam("policyId") String policyId) throws EntitlementServiceException {
         if (Objects.equals(policyId, "") || policyId == null) {
-            throw new EntitlementServiceException("Please provide policyId");
+            throw new EntitlementServiceException(404, "Please provide policyId");
         }
         String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
         } catch (FileNotFoundException e) {
-            throw new EntitlementServiceException(e);
+            throw new EntitlementServiceException(404, "Please provide policy file");
         }
-    }
-
-    @POST
-    @Path("/evaluate")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
-    @ApiOperation(
-            value = "Get response by evaluating JSON/XML XACML request")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "XACML JSON/XML Response"),
-            @ApiResponse(code = 404, message = "policy item not found")})
-    public Response evaluate(@ApiParam(value = "Response Media Type", required = true)
-                             @HeaderParam("Content-Type") String contentType,
-                             @ApiParam(value = "XACML JSON/XML Request", required = true) XAMCLRequest
-                                     xacmlRequest) {
-        EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
-        String result = entitlementEngine.testPolicy(xacmlRequest.getAction(), xacmlRequest.getResource(),
-                xacmlRequest.getSubject(), xacmlRequest.getEnvironment());
-        return Response.status(Response.Status.OK).entity(result).build();
-
     }
 
     @Override
