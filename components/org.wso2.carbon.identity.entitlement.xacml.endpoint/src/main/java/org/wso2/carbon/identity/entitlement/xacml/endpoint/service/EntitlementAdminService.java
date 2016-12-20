@@ -157,7 +157,7 @@ public class EntitlementAdminService implements Microservice {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Policy Created"),
             @ApiResponse(code = 404, message = "Error in creating Policy")})
-    public void createPolicy(@Context HttpStreamer httpStreamer,
+    public Response createPolicy(@Context HttpStreamer httpStreamer,
                              @PathParam("policyId") String policyId) throws EntitlementServiceException {
         if (Objects.equals(policyId, "") || policyId == null) {
             throw new EntitlementServiceException(404, "Please provide policyId");
@@ -165,6 +165,7 @@ public class EntitlementAdminService implements Microservice {
         String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
+            return Response.status(Response.Status.OK).build();
         } catch (FileNotFoundException e) {
             throw new EntitlementServiceException(404, "Please provide policy file");
         }
