@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.entitlement.xacml.core.pip;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -33,9 +31,6 @@ import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 /**
