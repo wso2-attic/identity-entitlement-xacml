@@ -142,7 +142,7 @@ public class EntitlementUtil {
     public static boolean validatePolicy(String policy) {
 //        try {
 
-
+// TODO: 12/20/16 have to validate policy
 
             // there may be cases where you only updated the policy meta data in PolicyDTO not the
             // actual XACML policy String
