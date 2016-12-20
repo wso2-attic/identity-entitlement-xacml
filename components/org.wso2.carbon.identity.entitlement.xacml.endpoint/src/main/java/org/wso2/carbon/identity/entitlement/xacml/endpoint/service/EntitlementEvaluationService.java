@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionRequestModel;
+import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionResponseBooleanModel;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionResponseModel;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.util.EntitlementEndpointConstants;
 import org.wso2.msf4j.Microservice;
@@ -138,7 +139,7 @@ public class EntitlementEvaluationService implements Microservice {
 
         String response = entitlementEngine.evaluate(request.getAction(), request.getResource(),
                 request.getSubject(), request.getEnvironment());
-        DecisionResponseModel decisionResponseModel = new DecisionResponseModel();
+        DecisionResponseBooleanModel decisionResponseModel = new DecisionResponseBooleanModel();
         decisionResponseModel.setResponseBoolean(response.contains("Permit"));
         return Response.status(Response.Status.OK).entity(decisionResponseModel).build();
 

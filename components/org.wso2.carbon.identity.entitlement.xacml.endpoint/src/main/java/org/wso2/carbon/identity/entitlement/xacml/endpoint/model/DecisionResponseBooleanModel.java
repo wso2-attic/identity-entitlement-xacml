@@ -1,3 +1,4 @@
+
 package org.wso2.carbon.identity.entitlement.xacml.endpoint.model;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -13,23 +14,22 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
-        "response"
+        "responseBoolean"
 })
 @JsonPropertyOrder({
-        "response"
+        "responseBoolean"
 })
 @XmlRootElement(name = "decisionResponse")
-public class DecisionResponseModel {
+public class DecisionResponseBooleanModel {
 
     @XmlElement(required = false)
-    private String response;
+    private boolean responseBoolean;
 
-
-    public String getResponse() {
-        return response;
+    public boolean isResponseBoolean() {
+        return responseBoolean;
     }
 
-    public void setResponse(String response) {
-        this.response = response;
+    public void setResponseBoolean(boolean responseBoolean) {
+        this.responseBoolean = responseBoolean;
     }
 }
