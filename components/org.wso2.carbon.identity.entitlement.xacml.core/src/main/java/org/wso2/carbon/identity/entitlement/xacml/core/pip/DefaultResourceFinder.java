@@ -26,8 +26,8 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * This is the default implementation of the PIPResourceFinder.  DefaultResourceFinder finds the resources
- * of the underline registry
+ * This is the default implementation of the PIPResourceFinder.
+ * todo implement the methods
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.pip.DefaultResourceFinder",

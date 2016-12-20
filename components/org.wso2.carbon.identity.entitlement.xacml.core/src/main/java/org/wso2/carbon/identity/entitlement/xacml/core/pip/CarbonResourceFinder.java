@@ -46,8 +46,7 @@ import java.util.Set;
 
 /**
  * CarbonResourceFinder implements the ResourceFinderModule in the sum-xacml. This class would find
- * children and descendant resources in the Registry resources which is running on the WSO2 Identity
- * Server
+ * children and descendant resources
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.pip.CarbonResourceFinder",
