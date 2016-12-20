@@ -90,27 +90,27 @@ public class EntitlementEngine {
         attributeFinder.setModules(attributeModules);
         init();
     }
-//
-//    @Reference(
-//            name = "Resource.finder.service",
-//            service = ResourceFinderModule.class,
-//            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-//            policy = ReferencePolicy.DYNAMIC,
-//            unbind = "unregisterResourceFinder"
-//    )
-//    protected void registerResourceFinder(ResourceFinderModule resourceFinderModule) {
-//        logger.debug("Registering Resource finder module ", resourceFinderModule.getClass().getName());
-//        resourceModules.add(resourceFinderModule);
-//        resourceFinder.setModules(resourceModules);
-//        init();
-//    }
-//
-//    protected void unregisterResourceFinder(ResourceFinderModule resourceFinderModule) {
-//        logger.debug("RUnregistering esource finder module", resourceFinderModule.getClass().getName());
-//        resourceModules.remove(resourceFinderModule);
-//        resourceFinder.setModules(resourceModules);
-//        init();
-//    }
+
+    @Reference(
+            name = "Resource.finder.service",
+            service = ResourceFinderModule.class,
+            cardinality = ReferenceCardinality.AT_LEAST_ONE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterResourceFinder"
+    )
+    protected void registerResourceFinder(ResourceFinderModule resourceFinderModule) {
+        logger.debug("Registering Resource finder module ", resourceFinderModule.getClass().getName());
+        resourceModules.add(resourceFinderModule);
+        resourceFinder.setModules(resourceModules);
+        init();
+    }
+
+    protected void unregisterResourceFinder(ResourceFinderModule resourceFinderModule) {
+        logger.debug("RUnregistering esource finder module", resourceFinderModule.getClass().getName());
+        resourceModules.remove(resourceFinderModule);
+        resourceFinder.setModules(resourceModules);
+        init();
+    }
 
 
     private void init() {
@@ -133,10 +133,10 @@ public class EntitlementEngine {
             }
             // have to throw exception in implementation time
             // starting pdp for in developing environment
-            PDPConfig pdpConfig =
-                    new PDPConfig(attributeFinder, policyFinder, resourceFinder, false);
-            pdp = new PDP(pdpConfig);
-            logger.debug("Entitlement Engine PDP started without all required finders");
+//            PDPConfig pdpConfig =
+//                    new PDPConfig(attributeFinder, policyFinder, resourceFinder, false);
+//            pdp = new PDP(pdpConfig);
+//            logger.debug("Entitlement Engine PDP started without all required finders");
         }
     }
 
