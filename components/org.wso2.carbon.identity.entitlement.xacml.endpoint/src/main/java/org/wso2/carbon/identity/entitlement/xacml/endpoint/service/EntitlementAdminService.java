@@ -141,10 +141,9 @@ public class EntitlementAdminService implements Microservice {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Valid policy item found"),
             @ApiResponse(code = 404, message = "policy item not found")})
-    public Response getPolcy(@PathParam("policyId") String policyId) throws EntitlementServiceException {
+    public void getPolcy(@PathParam("policyId") String policyId) throws EntitlementServiceException {
         try {
             PolicyStoreDTO policyDTO = policyStore.readPolicyDTO(policyId);
-            return Response.status(Response.Status.OK).entity(policyDTO).build();
         } catch (EntitlementException e) {
             throw new EntitlementServiceException(404, "There is no policy with policyId : " + policyId);
         }
@@ -159,9 +158,6 @@ public class EntitlementAdminService implements Microservice {
             @ApiResponse(code = 404, message = "Error in creating Policy")})
     public Response createPolicy(@Context HttpStreamer httpStreamer,
                              @PathParam("policyId") String policyId) throws EntitlementServiceException {
-        if (Objects.equals(policyId, "") || policyId == null) {
-            throw new EntitlementServiceException(404, "Please provide policyId");
-        }
         String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
