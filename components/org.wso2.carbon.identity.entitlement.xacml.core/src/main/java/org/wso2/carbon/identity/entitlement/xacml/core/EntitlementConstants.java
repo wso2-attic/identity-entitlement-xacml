@@ -63,6 +63,19 @@ public class EntitlementConstants {
 
     public static final String ACTION_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
+
+    public static final String XACML_3_POLICY_XMLNS = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
+
+    public static final String XACML_2_POLICY_XMLNS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
+
+    public static final String XACML_1_POLICY_XMLNS = "urn:oasis:names:tc:xacml:1.0:policy";
+
+    public static final String XACML_3_POLICY_SCHEMA_FILE = "xacml3.xsd";
+
+    public static final String XACML_2_POLICY_SCHEMA_FILE = "xacml2.xsd";
+
+    public static final String XACML_1_POLICY_SCHEMA_FILE = "xacml1.xsd";
+
     public static final String UNKNOWN = "UNKNOWN";
 
     public static final String SEARCH_WARNING_MESSAGE1 = "Attribute values are not defined directly";
