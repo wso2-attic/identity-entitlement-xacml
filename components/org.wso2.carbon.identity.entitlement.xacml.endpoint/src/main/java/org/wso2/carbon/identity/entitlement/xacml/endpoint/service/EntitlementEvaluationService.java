@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiResponses;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionRequestModel;
@@ -85,7 +84,8 @@ public class EntitlementEvaluationService implements Microservice {
     public Response getBooleanDecision(@ApiParam(value = "Request Media Type", required = true)
                                        @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
                                        @ApiParam(value = "Response Media Type", required = true)
-                                       @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER) String contentType,
+                                       @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER) String
+                                               contentType,
                                        @ApiParam(value = "Decision Request Model", required = true)
                                                DecisionRequestModel request) throws EntitlementServiceException {
 
@@ -95,6 +95,5 @@ public class EntitlementEvaluationService implements Microservice {
         DecisionResponseBooleanModel decisionResponseModel = new DecisionResponseBooleanModel();
         decisionResponseModel.setResponseBoolean(response.contains(EntitlementEndpointConstants.PERMIT));
         return Response.status(Response.Status.OK).entity(decisionResponseModel).build();
-
     }
 }

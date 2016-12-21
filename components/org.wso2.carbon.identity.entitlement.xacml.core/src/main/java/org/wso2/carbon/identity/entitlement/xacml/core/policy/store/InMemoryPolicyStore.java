@@ -46,7 +46,6 @@ public class InMemoryPolicyStore implements PolicyStore {
 
     @Override
     public PolicyDTO readPolicyDTO(String policyId) throws EntitlementException {
-        isExistPolicy(policyId);
         PolicyStoreDTO policyStoreDTO = policyStore.get(policyId);
         if (policyStoreDTO == null) {
             throw new EntitlementException("There is no policy in InMemoryPolicyStore for policyId : " + policyId);

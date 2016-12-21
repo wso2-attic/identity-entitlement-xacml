@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 
@@ -191,7 +192,7 @@ public class EntitlementUtil {
         try {
             //build XML document
             DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
-            InputStream stream = new ByteArrayInputStream(policy.getBytes());
+            InputStream stream = new ByteArrayInputStream(policy.getBytes(StandardCharsets.UTF_8));
             Document doc = documentBuilder.parse(stream);
 
 
@@ -256,7 +257,7 @@ public class EntitlementUtil {
                 return TimeAttribute.getInstance(value);
             }
             if (HexBinaryAttribute.identifier.equals(type)) {
-                return new HexBinaryAttribute(value.getBytes());
+                return new HexBinaryAttribute(value.getBytes(StandardCharsets.UTF_8));
             }
 
             return new AttributeValue(new URI(type)) {

@@ -7,7 +7,7 @@ import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementExce
 /**
  * PolicyStore is an extension point where XACML policies can be stored and
  * loaded from different sources. This is specially written for storing policies.
- * There can be only one policy store manage module
+ * There can be only one policy store module
  */
 public interface PolicyStore {
 

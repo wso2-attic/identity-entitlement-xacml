@@ -77,7 +77,7 @@ public class PolicyDeployer implements Deployer {
     @Override
     public void init() {
         logger.debug("Initializing the PolicyDeployer");
-        artifactType = new ArtifactType("policy");
+        artifactType = new ArtifactType<>("policy");
         try {
             repository = new URL("file:" + EntitlementConstants.POLICY_STORE_LOCATION);
         } catch (MalformedURLException e) {
@@ -127,6 +127,10 @@ public class PolicyDeployer implements Deployer {
         return artifactType;
     }
 
+    /**
+     * Read the artifacts and save the policy and metadata to PolicyStore and PolicyCollection
+     * @param artifact deployed articles
+     */
     private synchronized void readArtifact(Artifact artifact) {
         String artifactName = artifact.getName();
         String policyId = artifactName.substring(0,
@@ -140,7 +144,7 @@ public class PolicyDeployer implements Deployer {
             try (ZipFile zipFile = new ZipFile(artifact.getFile().getAbsoluteFile())) {
                 zipFile.stream()
                         .forEach(zipEntry -> {
-                            if (zipEntry.getName().endsWith(".xml")) {
+                            if (zipEntry.getName().endsWith(EntitlementConstants.POLICY_EXTENSTION)) {
                                 try (InputStream inputStream = zipFile.getInputStream(zipEntry);
                                      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                                     String content = reader.lines().collect(Collectors.joining());
@@ -155,7 +159,7 @@ public class PolicyDeployer implements Deployer {
                                     logger.error("Error in reading the xml file ", e);
                                 }
                             }
-                            if (zipEntry.getName().endsWith(".properties")) {
+                            if (zipEntry.getName().endsWith(EntitlementConstants.POLICY_PROPERTIES_EXTENSTION)) {
                                 try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
                                     Properties prop = new Properties();
                                     prop.load(inputStream);

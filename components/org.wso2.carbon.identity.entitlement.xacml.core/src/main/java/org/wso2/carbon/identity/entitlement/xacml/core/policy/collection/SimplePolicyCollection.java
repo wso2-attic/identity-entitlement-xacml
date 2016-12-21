@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /**
  * simple implementation of Policy collection interface. This uses in-memory map to maintain policies
- * policy versions are not maintained
+ * todo Have to maintain the Policy order
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.SimplePolicyCollection",

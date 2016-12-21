@@ -72,6 +72,8 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
             case "http://wso2.org/claims/userType":
                 values.add(dummyUser.getUserType());
                 break;
+            default:
+                break;
         }
 
         return values;

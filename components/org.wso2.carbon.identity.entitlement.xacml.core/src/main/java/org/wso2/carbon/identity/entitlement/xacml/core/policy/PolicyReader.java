@@ -45,9 +45,9 @@ public class PolicyReader implements ErrorHandler {
     // the builder used to create DOM documents
     private DocumentBuilder builder;
 
-    private PolicyReader(PolicyFinder policyFinder) {
+    private PolicyReader(PolicyFinder finder) {
 
-        this.policyFinder = policyFinder;
+        policyFinder = finder;
 
         // create the factory
         DocumentBuilderFactory documentBuilderFactory = EntitlementUtil.getSecuredDocumentBuilderFactory();

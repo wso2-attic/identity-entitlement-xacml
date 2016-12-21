@@ -64,28 +64,14 @@
             org.wso2.carbon.identity.entitlement.xacml.core.*
         </export.package>
         <import.package>
-            <!--org.osgi.framework.*;version="${osgi.framework.import.version.range}",-->
             org.slf4j; version="${org.slf4j.import.version.range}",
             org.wso2.carbon.deployment.engine; version="${carbon.deployment.import.version.range}",
             org.wso2.carbon.deployment.engine.exception; version="${carbon.deployment.import.version.range}",
-            <!--org.wso2.carbon.kernel.*;version="${carbon.kernel.import.version.range}",-->
             org.wso2.balana.*; version="${balana.import.version.range}",
             org.apache.xerces.util,
             org.apache.axiom.om.*,
             javax.xml.*
         </import.package>
-
-        <!--<carbon.component>-->
-        <!--osgi.service;objectClass="org.wso2.carbon.deployment.engine.Deployer",-->
-        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore",-->
-        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection,-->
-        <!--osgi.service;objectClass="org.wso2.balana.finder.PolicyFinderModule",-->
-        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.PolicyFinderModule",-->
-        <!--osgi.service;objectClass="org.wso2.balana.finder.AttributeFinderModule",-->
-        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPAttributeFinder",-->
-        <!--osgi.service;objectClass="org.wso2.balana.finder.ResourceFinderModule",-->
-        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPResourceFinder"-->
-        <!--</carbon.component>-->
 
     </properties>
 

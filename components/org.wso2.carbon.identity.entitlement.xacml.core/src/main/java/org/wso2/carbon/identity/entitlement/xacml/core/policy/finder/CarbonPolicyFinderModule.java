@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -85,19 +86,17 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     public Map<String, Set<AttributeDTO>> getSearchAttributes(String identifier, Set<AttributeDTO> givenAttribute)
             throws EntitlementException {
         Map<String, Set<AttributeDTO>> attributeMap = new HashMap<>();
-        List<PolicyStoreDTO> policyDTOs = Arrays.asList(policyStore.readAllPolicyStoreDTOs(true, true));
+        List<PolicyStoreDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyStoreDTOs(true, true));
 
-        policyDTOs.forEach(policyDTO -> {
-            Set<AttributeDTO> attributeDTOs = new HashSet<>(Arrays.asList(policyDTO.getAttributeDTOs()));
-            List<String> policyIdRef = Arrays.asList(policyDTO.getPolicyIdReferences());
-            List<String> policySetIdRef = Arrays.asList(policyDTO.getPolicySetIdReferences());
-            policyDTOs.forEach(dto -> {
-                policyIdRef.stream().filter(policyId -> dto.getPolicyId().equals(policyId))
-                        .forEach(policyId -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
-                policySetIdRef.stream().filter(policySetId -> dto.getPolicyId().equals(policySetId))
-                        .forEach(policySetId -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
-            });
-            attributeMap.put(policyDTO.getPolicyId(), attributeDTOs);
+        policyStoreDTOs.forEach(policyStoreDTO -> {
+            Set<AttributeDTO> attributeDTOs = new HashSet<>(Arrays.asList(policyStoreDTO.getAttributeDTOs()));
+            List<String> policyIdRef = Arrays.asList(policyStoreDTO.getPolicyIdReferences());
+            List<String> policySetIdRef = Arrays.asList(policyStoreDTO.getPolicySetIdReferences());
+
+            policyStoreDTOs.stream().filter(dto -> policyIdRef.contains(dto.getPolicyId()) ||
+                                                                        policySetIdRef.contains(dto.getPolicyId()))
+                    .forEach(dto -> attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs())));
+            attributeMap.put(policyStoreDTO.getPolicyId(), attributeDTOs);
         });
 
         return attributeMap;

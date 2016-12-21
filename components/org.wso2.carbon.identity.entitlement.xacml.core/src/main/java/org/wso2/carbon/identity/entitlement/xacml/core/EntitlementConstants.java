@@ -1,7 +1,7 @@
 package org.wso2.carbon.identity.entitlement.xacml.core;
 
 /**
- *
+ * Consists of Constants used in the entitlement module
  */
 public class EntitlementConstants {
 

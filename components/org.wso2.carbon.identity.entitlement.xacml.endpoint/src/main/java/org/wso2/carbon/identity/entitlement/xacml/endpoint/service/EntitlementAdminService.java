@@ -41,6 +41,13 @@ import org.wso2.msf4j.HttpStreamHandler;
 import org.wso2.msf4j.HttpStreamer;
 import org.wso2.msf4j.Microservice;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -49,13 +56,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Paths;
 
 /**
  * EntitlementAdmin micro service.
@@ -121,13 +121,13 @@ public class EntitlementAdminService implements Microservice {
             notes = "Returns HTTP 404 if the is not found")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "policy store available"),
-            @ApiResponse(code = 404, message = "policy store not found")})
+            @ApiResponse(code = 4040, message = "policy store not found")})
     public Response getAllPolcies() throws EntitlementServiceException {
         try {
             PolicyDTO[] policyDTOs = policyStore.readAllPolicyDTOs();
             return Response.status(Response.Status.OK).entity(policyDTOs).build();
         } catch (EntitlementException e) {
-            throw new EntitlementServiceException(404, "There is no policyStore");
+            throw new EntitlementServiceException(4040, "There is no policyStore");
         }
     }
 
@@ -139,13 +139,13 @@ public class EntitlementAdminService implements Microservice {
             notes = "Returns HTTP 404 if the policyId is not found")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Valid policy item found"),
-            @ApiResponse(code = 404, message = "policy item not found")})
+            @ApiResponse(code = 4040, message = "policy item not found")})
     public Response getPolcy(@PathParam("policyId") String policyId) throws EntitlementServiceException {
         try {
             PolicyDTO policyDTO = policyStore.readPolicyDTO(policyId);
             return Response.status(Response.Status.OK).entity(policyDTO).build();
         } catch (EntitlementException e) {
-            throw new EntitlementServiceException(404, "There is no policy with policyId : " + policyId);
+            throw new EntitlementServiceException(4040, "There is no policy with policyId : " + policyId);
         }
     }
 
@@ -155,14 +155,14 @@ public class EntitlementAdminService implements Microservice {
             value = "Upload the policy. PolicyId have to in the path param")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Policy Created"),
-            @ApiResponse(code = 404, message = "Error in creating Policy")})
+            @ApiResponse(code = 4040, message = "Error in creating Policy")})
     public void createPolicy(@Context HttpStreamer httpStreamer,
                              @PathParam("policyId") String policyId) throws EntitlementServiceException {
         String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
         } catch (FileNotFoundException e) {
-            throw new EntitlementServiceException(404, "Please provide policy file");
+            throw new EntitlementServiceException(4040, "Please provide policy file");
         }
     }
 
