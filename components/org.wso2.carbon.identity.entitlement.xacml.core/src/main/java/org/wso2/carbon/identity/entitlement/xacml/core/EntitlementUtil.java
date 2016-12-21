@@ -25,7 +25,6 @@ import org.wso2.balana.combine.xacml3.OrderedDenyOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.OrderedPermitOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.PermitOverridesPolicyAlg;
 import org.wso2.balana.combine.xacml3.PermitUnlessDenyPolicyAlg;
-import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,7 +42,8 @@ import java.text.ParseException;
  */
 public class EntitlementUtil {
 
-        private static final Logger logger = LoggerFactory.getLogger(EntitlementUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntitlementUtil.class);
+
     /**
      * Creates Simple XACML request using given attribute value.Here category, attribute ids and datatypes are
      * taken as default values.
@@ -144,19 +144,19 @@ public class EntitlementUtil {
 
 // TODO: 12/20/16 have to validate policy
 
-            // there may be cases where you only updated the policy meta data in PolicyDTO not the
-            // actual XACML policy String
-            if (policy == null || policy.trim().length() < 1) {
-                return true;
-            }
-
-            //get policy version
-            String policyXMLNS = getPolicyVersion(policy);
-
+        // there may be cases where you only updated the policy meta data in PolicyDTO not the
+        // actual XACML policy String
+        if (policy == null || policy.trim().length() < 1) {
             return true;
+        }
+
+        //get policy version
+        String policyXMLNS = getPolicyVersion(policy);
+
+        return true;
 //            Map<String, Schema> schemaMap = EntitlementServiceComponent.
 //                    getEntitlementConfig().getPolicySchemaMap();
-            //load correct schema by version
+        //load correct schema by version
 //            Schema schema = schemaMap.get(policyXMLNS);
 
 //            if (schema != null) {

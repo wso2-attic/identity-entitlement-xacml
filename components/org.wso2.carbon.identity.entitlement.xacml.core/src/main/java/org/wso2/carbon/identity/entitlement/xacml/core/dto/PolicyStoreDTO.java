@@ -89,11 +89,11 @@ public class PolicyStoreDTO {
         this.policyIdReferences = Arrays.copyOf(policyIdReferences, policyIdReferences.length);
     }
 
-    public void setPolicyType(String policyType) {
-        this.policyType = policyType;
-    }
-
     public String getPolicyType() {
         return policyType;
+    }
+
+    public void setPolicyType(String policyType) {
+        this.policyType = policyType;
     }
 }

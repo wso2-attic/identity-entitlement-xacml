@@ -1,13 +1,10 @@
 package org.wso2.carbon.identity.entitlement.xacml.core.pip;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pip.dummy.DummyUser;
-
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +14,7 @@ import java.util.Set;
 /**
  * DefaultAttributeFinder talks to the underlying user store to read user attributes.
  * DefaultAttributeFinder is by default registered for all the claims defined under
- *  todo : its using dummy user store - have to use user store
+ * todo : its using dummy user store - have to use user store
  */
 @Component(
         name = "org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPAttributeFinder",

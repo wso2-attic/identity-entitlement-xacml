@@ -1,4 +1,3 @@
-
 package org.wso2.carbon.identity.entitlement.xacml.core.policy.collection;
 
 import org.wso2.balana.AbstractPolicy;
@@ -70,14 +69,15 @@ public interface PolicyCollection {
 
     /**
      * deletes the AbstractPolicy of the policyId
-     * @param policyId  PolicyId as String
+     *
+     * @param policyId PolicyId as String
      * @return whether delete is sucess or not
      * @throws EntitlementException if any error, while removing policy
      */
     public boolean deletePolicy(String policyId) throws EntitlementException;
 
-    public LinkedHashMap getPolicyMap() ;
+    public LinkedHashMap getPolicyMap();
 
-    public void setPolicyMap(LinkedHashMap policyMap) ;
+    public void setPolicyMap(LinkedHashMap policyMap);
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -76,15 +76,15 @@
         </import.package>
 
         <!--<carbon.component>-->
-            <!--osgi.service;objectClass="org.wso2.carbon.deployment.engine.Deployer",-->
-            <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore",-->
-            <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection,-->
-            <!--osgi.service;objectClass="org.wso2.balana.finder.PolicyFinderModule",-->
-            <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.PolicyFinderModule",-->
-            <!--osgi.service;objectClass="org.wso2.balana.finder.AttributeFinderModule",-->
-            <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPAttributeFinder",-->
-            <!--osgi.service;objectClass="org.wso2.balana.finder.ResourceFinderModule",-->
-            <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPResourceFinder"-->
+        <!--osgi.service;objectClass="org.wso2.carbon.deployment.engine.Deployer",-->
+        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.store.PolicyStore",-->
+        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.collection.PolicyCollection,-->
+        <!--osgi.service;objectClass="org.wso2.balana.finder.PolicyFinderModule",-->
+        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.policy.finder.PolicyFinderModule",-->
+        <!--osgi.service;objectClass="org.wso2.balana.finder.AttributeFinderModule",-->
+        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPAttributeFinder",-->
+        <!--osgi.service;objectClass="org.wso2.balana.finder.ResourceFinderModule",-->
+        <!--osgi.service;objectClass="org.wso2.carbon.identity.entitlement.xacml.core.pip.PIPResourceFinder"-->
         <!--</carbon.component>-->
 
     </properties>

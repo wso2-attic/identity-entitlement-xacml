@@ -1,4 +1,3 @@
-
 package org.wso2.carbon.identity.entitlement.xacml.core;
 
 import java.util.LinkedHashMap;

@@ -39,7 +39,7 @@ import java.util.Set;
 public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractPIPResourceFinder.class);
-//    private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> abstractResourceCache = null;
+    //    private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> abstractResourceCache = null;
     private boolean isAbstractResourceCacheEnabled = false;
 
     /**

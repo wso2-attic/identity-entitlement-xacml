@@ -40,11 +40,10 @@ public class PolicyReader implements ErrorHandler {
     private static final Logger logger = LoggerFactory.getLogger(PolicyReader.class);
 
     private static volatile PolicyReader reader;
-    // the builder used to create DOM documents
-    private DocumentBuilder builder;
-
     // policy finder module to find  policies
     private static PolicyFinder policyFinder;
+    // the builder used to create DOM documents
+    private DocumentBuilder builder;
 
     private PolicyReader(PolicyFinder policyFinder) {
 
@@ -82,13 +81,13 @@ public class PolicyReader implements ErrorHandler {
      * @return
      */
     public static PolicyReader getInstance() throws EntitlementException {
-        if (policyFinder ==null) {
+        if (policyFinder == null) {
             throw new EntitlementException("PolicyFinder is not initialized in PolicyReader");
         }
         if (reader == null) {
             synchronized (lock) {
                 if (reader == null) {
-                        reader = new PolicyReader(policyFinder);
+                    reader = new PolicyReader(policyFinder);
                 }
             }
         }

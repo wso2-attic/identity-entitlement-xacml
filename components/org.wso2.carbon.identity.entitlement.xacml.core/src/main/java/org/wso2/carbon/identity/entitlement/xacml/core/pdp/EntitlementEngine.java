@@ -18,7 +18,6 @@ import org.wso2.balana.finder.PolicyFinderModule;
 import org.wso2.balana.finder.ResourceFinder;
 import org.wso2.balana.finder.ResourceFinderModule;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
-import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,20 +31,26 @@ import java.util.Set;
 )
 public class EntitlementEngine {
 
+    private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
     private static PDP pdp;
     private static Balana balana;
-
     private static PolicyFinder policyFinder = new PolicyFinder();
     private static AttributeFinder attributeFinder = new AttributeFinder();
     private static ResourceFinder resourceFinder = new ResourceFinder();
-
     private static Set<PolicyFinderModule> policyModules = new HashSet<>();
     private static List<AttributeFinderModule> attributeModules = new ArrayList<>();
     private static List<ResourceFinderModule> resourceModules = new ArrayList<>();
-
     private static EntitlementEngine entitlementEngine = new EntitlementEngine();
 
-    private static final Logger logger = LoggerFactory.getLogger(EntitlementEngine.class);
+    /**
+     * Get a EntitlementEngine instance. This method will return an
+     * EntitlementEngine instance if exists, or creates a new one
+     *
+     * @return EntitlementEngine instance for that tenant
+     */
+    public static EntitlementEngine getInstance() {
+        return entitlementEngine;
+    }
 
     @Reference(
             name = "policy.finder.service",
@@ -112,7 +117,6 @@ public class EntitlementEngine {
         init();
     }
 
-
     private void init() {
 
         if (!policyModules.isEmpty() && !attributeModules.isEmpty() && !resourceModules.isEmpty()) {
@@ -139,17 +143,6 @@ public class EntitlementEngine {
 //            logger.debug("Entitlement Engine PDP started without all required finders");
         }
     }
-
-    /**
-     * Get a EntitlementEngine instance. This method will return an
-     * EntitlementEngine instance if exists, or creates a new one
-     *
-     * @return EntitlementEngine instance for that tenant
-     */
-    public static EntitlementEngine getInstance() {
-        return entitlementEngine;
-    }
-
 
     /**
      * Evaluates the given XACML request and returns the Response that the EntitlementEngine will

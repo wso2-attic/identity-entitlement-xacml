@@ -130,7 +130,7 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
                 }
             }
         } else {
-                logger.debug("Carbon Attribute Cache Hit");
+            logger.debug("Carbon Attribute Cache Hit");
         }
 
         return attributeValues;

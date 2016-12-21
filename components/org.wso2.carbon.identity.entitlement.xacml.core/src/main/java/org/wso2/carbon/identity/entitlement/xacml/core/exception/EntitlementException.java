@@ -2,8 +2,8 @@ package org.wso2.carbon.identity.entitlement.xacml.core.exception;
 
 
 /**
- *  This is a custom exception class for entitlement module.
- *  All the ejections will be thrown in this module as  EntitlementException
+ * This is a custom exception class for entitlement module.
+ * All the ejections will be thrown in this module as  EntitlementException
  */
 public class EntitlementException extends Exception {
 

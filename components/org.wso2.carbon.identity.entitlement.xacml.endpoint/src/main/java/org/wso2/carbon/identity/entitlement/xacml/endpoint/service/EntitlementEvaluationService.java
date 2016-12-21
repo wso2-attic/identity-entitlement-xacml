@@ -1,6 +1,5 @@
 package org.wso2.carbon.identity.entitlement.xacml.endpoint.service;
 
-import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -9,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.exception.EntitlementServiceException;
 import org.wso2.carbon.identity.entitlement.xacml.endpoint.model.DecisionRequestModel;
@@ -33,49 +33,11 @@ import javax.ws.rs.core.Response;
         service = Microservice.class,
         immediate = true
 )
-@Api(value = "/entitlement/evaluation", description = "Evaluate XACML 3.0 Policies")
+@Api(value = "/entitlement/evaluation", description = "Evaluate XACML Policies")
 @Path("/entitlement/evaluation")
 public class EntitlementEvaluationService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(EntitlementEvaluationService.class);
-
-    private static Gson gson = new Gson();
-
-
-//    /**
-//     * API endpoint for evaluating XACML XML policies
-//     *
-//     * @return XML Policy result String
-//     */
-//    @POST
-//    @Path("pdp")
-//    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-//    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-//    @ApiOperation(value = "Get response by evaluating JSON/XML XACML request", response = String.class)
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 200, message = "XACML JSON/XML Response"),
-//            @ApiResponse(code = 40020, message = EntitlementEndpointConstants.ERROR_REQUEST_PARSE_MESSAGE,
-//                    response = EntitlementServiceException.class),
-//            @ApiResponse(code = 40010, message = EntitlementEndpointConstants.ERROR_RESPONSE_READ_MESSAGE,
-//                    response = EntitlementServiceException.class)
-//    })
-//    public String getDecision(@ApiParam(value = "Request Media Type", required = true)
-//                              @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
-//                              @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER) String contentType,
-//                              @ApiParam(value = "XACML JSON/XML Request", required = true)
-//                                      XacmlRequestModel xacmlRequest) throws Exception {
-//
-//        logger.debug("recieved :" + xacmlRequest.getRequest());
-//        EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
-//
-//        if (contentType.equals(EntitlementEndpointConstants.APPLICATION_JSON)) {
-//            RequestCtx requestCtx = JSONRequestParser.parse(xacmlRequest.getRequest());
-//            ResponseCtx responseCtx = entitlementEngine.evaluateByContext(requestCtx);
-//            return gson.toJson(JSONResponseWriter.write(responseCtx));
-//        } else {
-//            return entitlementEngine.evaluate(xacmlRequest.getRequest());
-//        }
-//    }
 
     /**
      * API endpoint for evaluating policy by attributes as queries
@@ -88,19 +50,15 @@ public class EntitlementEvaluationService implements Microservice {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Get response by evaluating attributes", response = String.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "XACML JSON/XML Response"),
-            @ApiResponse(code = 40020, message = EntitlementEndpointConstants.ERROR_REQUEST_PARSE_MESSAGE,
-                    response = EntitlementServiceException.class),
-            @ApiResponse(code = 40010, message = EntitlementEndpointConstants.ERROR_RESPONSE_READ_MESSAGE,
-                    response = EntitlementServiceException.class)
+            @ApiResponse(code = 200, message = "XACML JSON/XML Response")
     })
     public Response getDecisionByAttributes(@ApiParam(value = "Request Media Type", required = true)
-                                          @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
+                                            @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
                                             @ApiParam(value = "Response Media Type", required = true)
-                                          @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER)
-                                                  String contentType,
+                                            @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER)
+                                                    String contentType,
                                             @ApiParam(value = "Decision Request Model", required = true)
-                                                      DecisionRequestModel request) throws Exception {
+                                                    DecisionRequestModel request) throws EntitlementServiceException {
 
         EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
         String result = entitlementEngine.evaluate(request.getAction(), request.getResource(),
@@ -122,25 +80,20 @@ public class EntitlementEvaluationService implements Microservice {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Get boolean response by evaluating attributes", response = Boolean.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Boolean response"),
-            @ApiResponse(code = 40020, message = EntitlementEndpointConstants.ERROR_REQUEST_PARSE_MESSAGE,
-                    response = EntitlementServiceException.class),
-            @ApiResponse(code = 40010, message = EntitlementEndpointConstants.ERROR_RESPONSE_READ_MESSAGE,
-                    response = EntitlementServiceException.class)
+            @ApiResponse(code = 200, message = "Boolean response")
     })
     public Response getBooleanDecision(@ApiParam(value = "Request Media Type", required = true)
-                                      @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
+                                       @HeaderParam(EntitlementEndpointConstants.ACCEPT_HEADER) String format,
                                        @ApiParam(value = "Response Media Type", required = true)
-                                      @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER) String contentType,
+                                       @HeaderParam(EntitlementEndpointConstants.CONTENT_TYPE_HEADER) String contentType,
                                        @ApiParam(value = "Decision Request Model", required = true)
-                                              DecisionRequestModel request) throws Exception {
+                                               DecisionRequestModel request) throws EntitlementServiceException {
 
         EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
-
         String response = entitlementEngine.evaluate(request.getAction(), request.getResource(),
                 request.getSubject(), request.getEnvironment());
         DecisionResponseBooleanModel decisionResponseModel = new DecisionResponseBooleanModel();
-        decisionResponseModel.setResponseBoolean(response.contains("Permit"));
+        decisionResponseModel.setResponseBoolean(response.contains(EntitlementEndpointConstants.PERMIT));
         return Response.status(Response.Status.OK).entity(decisionResponseModel).build();
 
     }

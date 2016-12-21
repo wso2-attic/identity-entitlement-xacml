@@ -41,14 +41,6 @@ import org.wso2.msf4j.HttpStreamHandler;
 import org.wso2.msf4j.HttpStreamer;
 import org.wso2.msf4j.Microservice;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Paths;
-import java.util.Objects;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -57,6 +49,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
 
 /**
  * EntitlementAdmin micro service.
@@ -157,7 +156,7 @@ public class EntitlementAdminService implements Microservice {
             @ApiResponse(code = 200, message = "Policy Created"),
             @ApiResponse(code = 404, message = "Error in creating Policy")})
     public Response createPolicy(@Context HttpStreamer httpStreamer,
-                             @PathParam("policyId") String policyId) throws EntitlementServiceException {
+                                 @PathParam("policyId") String policyId) throws EntitlementServiceException {
         String fileName = policyId + EntitlementConstants.POLICY_BUNDLE_EXTENSTION;
         try {
             httpStreamer.callback(new HttpStreamHandlerImpl(fileName));
@@ -171,7 +170,6 @@ public class EntitlementAdminService implements Microservice {
     public String toString() {
         return "EntitlementAdminService-OSGi-bundle";
     }
-
 
 
     /**

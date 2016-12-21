@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.entitlement.xacml.core.pip;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -44,10 +42,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -65,11 +61,10 @@ import java.util.Set;
 )
 public class CarbonAttributeFinder extends AttributeFinderModule {
 
-    private List<PIPAttributeFinder> attrFinders = new ArrayList<>();
     private static final Logger logger = LoggerFactory.getLogger(CarbonAttributeFinder.class);
+    private List<PIPAttributeFinder> attrFinders = new ArrayList<>();
 
 //    private PIPAttributeCache attributeFinderCache = null;
-
 
     @Reference(
             name = "attribute.finder",

@@ -1,4 +1,3 @@
-
 package org.wso2.carbon.identity.entitlement.xacml.endpoint.model;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

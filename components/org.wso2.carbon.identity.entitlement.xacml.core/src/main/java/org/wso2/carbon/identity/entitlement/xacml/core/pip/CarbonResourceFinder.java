@@ -32,7 +32,6 @@ import org.wso2.balana.finder.ResourceFinderResult;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;

@@ -11,7 +11,7 @@ public class EntitlementConstants {
 
 
     /**
-     *  String constants used XACML policy
+     * String constants used XACML policy
      */
     public static final String POLICY_REFERENCE = "policyIdReferences";
 

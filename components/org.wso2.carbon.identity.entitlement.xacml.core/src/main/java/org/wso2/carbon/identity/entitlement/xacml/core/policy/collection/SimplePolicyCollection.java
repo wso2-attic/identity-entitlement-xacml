@@ -11,17 +11,12 @@ import org.wso2.balana.PolicySet;
 import org.wso2.balana.VersionConstraints;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.ctx.EvaluationCtx;
-import org.wso2.carbon.identity.entitlement.xacml.core.PolicyOrderComparator;
-import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 

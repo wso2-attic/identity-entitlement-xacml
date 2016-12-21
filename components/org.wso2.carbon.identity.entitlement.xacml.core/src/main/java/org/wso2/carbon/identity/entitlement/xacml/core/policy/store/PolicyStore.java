@@ -54,7 +54,7 @@ public interface PolicyStore {
 
     /**
      * Remove a particular policy
-     * 
+     *
      * @param policyId policyId going to remove
      * @throws EntitlementException custom exception
      */
