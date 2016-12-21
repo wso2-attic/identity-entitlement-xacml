@@ -23,8 +23,14 @@ public interface PolicyStore {
      */
     public void updatePolicy(PolicyDTO policy) throws EntitlementException;
 
+    /**
+     * @param active filter only active policy or not
+     * @param order  order policy by policyOrder or not
+     * @throws EntitlementException custom exception
+     */
+    public PolicyDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException;
 
-    public PolicyStoreDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException;
+    PolicyStoreDTO[] readAllPolicyStoreDTOs(boolean active, boolean order);
 
     /**
      * Reads PolicyStoreDTO for given policy id
@@ -33,7 +39,7 @@ public interface PolicyStore {
      * @return PolicyStoreDTO
      * @throws EntitlementException custom exception
      */
-    public abstract PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException;
+    public abstract PolicyDTO readPolicyDTO(String policyId) throws EntitlementException;
 
     /**
      * Checks whether policy is exist for given policy id
@@ -50,7 +56,7 @@ public interface PolicyStore {
      * @return Array of PolicyStoreDTO
      * @throws EntitlementException custom exception
      */
-    public abstract PolicyStoreDTO[] readAllPolicyDTOs() throws EntitlementException;
+    public abstract PolicyDTO[] readAllPolicyDTOs() throws EntitlementException;
 
     /**
      * Remove a particular policy

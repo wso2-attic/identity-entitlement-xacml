@@ -15,6 +15,17 @@ public class PolicyDTO {
 
     private int version;
 
+    public PolicyDTO(String policyId, String policy, boolean active, int policyOrder, int version) {
+        this.policyId = policyId;
+        this.policy = policy;
+        this.active = active;
+        this.policyOrder = policyOrder;
+        this.version = version;
+    }
+
+    public PolicyDTO() {
+    }
+
     public String getPolicy() {
         return policy;
     }

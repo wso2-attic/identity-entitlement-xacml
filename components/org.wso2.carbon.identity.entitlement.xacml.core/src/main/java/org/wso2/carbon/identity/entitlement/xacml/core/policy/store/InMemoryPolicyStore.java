@@ -45,14 +45,17 @@ public class InMemoryPolicyStore implements PolicyStore {
     private String regString = "[a-zA-Z0-9._:-]{3,100}$";
 
     @Override
-    public PolicyStoreDTO readPolicyDTO(String policyId) throws EntitlementException {
+    public PolicyDTO readPolicyDTO(String policyId) throws EntitlementException {
         isExistPolicy(policyId);
         PolicyStoreDTO policyStoreDTO = policyStore.get(policyId);
         if (policyStoreDTO == null) {
             throw new EntitlementException("There is no policy in InMemoryPolicyStore for policyId : " + policyId);
         }
+        PolicyDTO policyDTO = new PolicyDTO(policyStoreDTO.getPolicyId(),
+                policyStoreDTO.getPolicy(), policyStoreDTO.isActive(), policyStoreDTO.getPolicyOrder(),
+                policyStoreDTO.getVersion());
         logger.debug("Reading policy from InMemoryPolicyStore : " + policyId);
-        return policyStoreDTO;
+        return policyDTO;
     }
 
     @Override
@@ -148,25 +151,35 @@ public class InMemoryPolicyStore implements PolicyStore {
     }
 
     @Override
-    public PolicyStoreDTO[] readAllPolicyDTOs() throws EntitlementException {
+    public PolicyDTO[] readAllPolicyDTOs() throws EntitlementException {
+        Collection<PolicyStoreDTO> policyStoreDTOs = policyStore.values();
+        List<PolicyDTO> policyDTOs = policyStoreDTOs.stream().map(policyStoreDTO -> new PolicyDTO(policyStoreDTO.getPolicyId(),
+                policyStoreDTO.getPolicy(), policyStoreDTO.isActive(), policyStoreDTO.getPolicyOrder(),
+                policyStoreDTO.getVersion()
+        )).collect(Collectors.toList());
+        return policyDTOs.toArray(new PolicyDTO[policyDTOs.size()]);
+    }
+
+    @Override
+    public PolicyStoreDTO[] readAllPolicyStoreDTOs(boolean active, boolean order) {
         Collection<PolicyStoreDTO> policyStoreDTOs = policyStore.values();
         return policyStoreDTOs.toArray(new PolicyStoreDTO[policyStoreDTOs.size()]);
     }
 
     @Override
-    public PolicyStoreDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException {
-        PolicyStoreDTO[] policyStoreDTOs = readAllPolicyDTOs();
-        List<PolicyStoreDTO> collect;
+    public PolicyDTO[] readAllPolicyDTOs(boolean active, boolean order) throws EntitlementException {
+        PolicyDTO[] policyStoreDTOs = readAllPolicyDTOs();
+        List<PolicyDTO> collect;
         if (active) {
             collect = Arrays.stream(policyStoreDTOs).
-                    filter((PolicyStoreDTO::isActive)).collect(Collectors.toList());
+                    filter((PolicyDTO::isActive)).collect(Collectors.toList());
         } else {
             collect = Arrays.stream(policyStoreDTOs).collect(Collectors.toList());
         }
         if (order) {
             collect.sort(new PolicyOrderComparator());
         }
-        policyStoreDTOs = collect.toArray(new PolicyStoreDTO[collect.size()]);
+        policyStoreDTOs = collect.toArray(new PolicyDTO[collect.size()]);
         return policyStoreDTOs;
     }
 

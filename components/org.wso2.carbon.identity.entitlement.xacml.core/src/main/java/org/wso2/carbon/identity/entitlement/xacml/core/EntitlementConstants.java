@@ -9,6 +9,9 @@ public class EntitlementConstants {
 
     public static final String POLICY_BUNDLE_EXTENSTION = ".xacml";
 
+    public static final String POLICY_EXTENSTION = ".xml";
+
+    public static final String POLICY_PROPERTIES_EXTENSTION = ".properties";
 
     /**
      * String constants used XACML policy
@@ -63,7 +66,6 @@ public class EntitlementConstants {
 
     public static final String ACTION_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
-
     public static final String XACML_3_POLICY_XMLNS = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
 
     public static final String XACML_2_POLICY_XMLNS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
@@ -83,6 +85,5 @@ public class EntitlementConstants {
     public static final String SEARCH_WARNING_MESSAGE2 = "No Attributes are defined";
 
     public static final String SEARCH_WARNING_MESSAGE3 = "Attribute Selector Element is contained with Xpath expression";
-
     public static final String SEARCH_WARNING_MESSAGE4 = "Apply Element is not contained within Condition Element";
 }

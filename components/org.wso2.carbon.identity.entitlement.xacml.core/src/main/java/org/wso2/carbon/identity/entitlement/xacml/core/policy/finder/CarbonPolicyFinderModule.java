@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.AttributeDTO;
+import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.wso2.carbon.identity.entitlement.xacml.core.pdp.EntitlementEngine;
@@ -63,7 +64,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     public String[] getOrderedPolicyIdentifiers() throws EntitlementException {
         logger.debug("Start retrieving ordered policy identifiers at : " + new Date());
         List<String> policyIdentifiers = new ArrayList<>();
-        List<PolicyStoreDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(false, true));
+        List<PolicyDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(false, true));
         policyStoreDTOs.forEach(policy -> policyIdentifiers.add(policy.getPolicyId()));
         logger.debug("Finish retrieving ordered policy identifiers at : " + new Date());
         return policyIdentifiers.toArray(new String[policyIdentifiers.size()]);
@@ -74,7 +75,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     public String[] getActivePolicies() throws EntitlementException {
         logger.debug("Start retrieving active policies at : " + new Date());
         List<String> policyIdentifiers = new ArrayList<>();
-        List<PolicyStoreDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(true, true));
+        List<PolicyDTO> policyStoreDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(true, true));
         policyStoreDTOs.forEach(policy -> policyIdentifiers.add(policy.getPolicyId()));
         logger.debug("Finish retrieving active policies at : " + new Date());
         return policyIdentifiers.toArray(new String[policyIdentifiers.size()]);
@@ -84,7 +85,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
     public Map<String, Set<AttributeDTO>> getSearchAttributes(String identifier, Set<AttributeDTO> givenAttribute)
             throws EntitlementException {
         Map<String, Set<AttributeDTO>> attributeMap = new HashMap<>();
-        List<PolicyStoreDTO> policyDTOs = Arrays.asList(policyStore.readAllPolicyDTOs(true, true));
+        List<PolicyStoreDTO> policyDTOs = Arrays.asList(policyStore.readAllPolicyStoreDTOs(true, true));
 
         policyDTOs.forEach(policyDTO -> {
             Set<AttributeDTO> attributeDTOs = new HashSet<>(Arrays.asList(policyDTO.getAttributeDTOs()));
@@ -104,7 +105,7 @@ public class CarbonPolicyFinderModule implements PolicyFinderModule {
 
     @Override
     public Optional<String> getReferencedPolicy(String policyId) throws EntitlementException {
-        PolicyStoreDTO dto = policyStore.readPolicyDTO(policyId);
+        PolicyDTO dto = policyStore.readPolicyDTO(policyId);
         if (dto.getPolicy() != null && !dto.isActive()) {
             return Optional.ofNullable(dto.getPolicy());
         }
