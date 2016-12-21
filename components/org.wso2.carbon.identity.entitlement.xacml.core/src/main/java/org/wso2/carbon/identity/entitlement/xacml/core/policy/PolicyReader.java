@@ -10,6 +10,7 @@ import org.wso2.balana.Policy;
 import org.wso2.balana.PolicySet;
 import org.wso2.balana.finder.PolicyFinder;
 import org.wso2.carbon.identity.entitlement.xacml.core.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.xacml.core.exception.EntitlementException;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -43,7 +44,7 @@ public class PolicyReader implements ErrorHandler {
     private DocumentBuilder builder;
 
     // policy finder module to find  policies
-    private PolicyFinder policyFinder;
+    private static PolicyFinder policyFinder;
 
     private PolicyReader(PolicyFinder policyFinder) {
 
@@ -71,6 +72,23 @@ public class PolicyReader implements ErrorHandler {
             synchronized (lock) {
                 if (reader == null) {
                     reader = new PolicyReader(policyFinder);
+                }
+            }
+        }
+        return reader;
+    }
+
+    /**
+     * @return
+     */
+    public static PolicyReader getInstance() throws EntitlementException {
+        if (policyFinder ==null) {
+            throw new EntitlementException("PolicyFinder is not initialized in PolicyReader");
+        }
+        if (reader == null) {
+            synchronized (lock) {
+                if (reader == null) {
+                        reader = new PolicyReader(policyFinder);
                 }
             }
         }

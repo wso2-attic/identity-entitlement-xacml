@@ -64,11 +64,11 @@
             org.wso2.carbon.identity.entitlement.xacml.core.*
         </export.package>
         <import.package>
-            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            <!--org.osgi.framework.*;version="${osgi.framework.import.version.range}",-->
             org.slf4j; version="${org.slf4j.import.version.range}",
             org.wso2.carbon.deployment.engine; version="${carbon.deployment.import.version.range}",
             org.wso2.carbon.deployment.engine.exception; version="${carbon.deployment.import.version.range}",
-            org.wso2.carbon.kernel.*;version="${carbon.kernel.import.version.range}",
+            <!--org.wso2.carbon.kernel.*;version="${carbon.kernel.import.version.range}",-->
             org.wso2.balana.*; version="${balana.import.version.range}",
             org.apache.xerces.util,
             org.apache.axiom.om.*,

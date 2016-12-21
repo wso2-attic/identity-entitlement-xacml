@@ -192,7 +192,7 @@ public class PolicyDeployer implements Deployer {
                 try {
                     policyStore.addPolicy(policyDTO);
                     if (policyDTO.isActive()) {
-                        PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy()).
+                        PolicyReader.getInstance().getPolicy(policyDTO.getPolicy()).
                                 ifPresent(abstractPolicy -> policyCollection.addPolicy(abstractPolicy));
                     } else {
                         policyCollection.deletePolicy(policyDTO.getPolicyId());

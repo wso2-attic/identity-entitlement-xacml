@@ -74,7 +74,7 @@ public class InMemoryPolicyStore implements PolicyStore {
                     "An Entitlement Policy Id is not valid. It contains illegal characters");
         }
 
-        AbstractPolicy abstractPolicy = PolicyReader.getInstance(null).getPolicy(policyDTO.getPolicy())
+        AbstractPolicy abstractPolicy = PolicyReader.getInstance().getPolicy(policyDTO.getPolicy())
                 .orElseThrow(() -> new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed"));
 
         if (!Objects.equals(policyDTO.getPolicyId(), abstractPolicy.getId().toString())) {
