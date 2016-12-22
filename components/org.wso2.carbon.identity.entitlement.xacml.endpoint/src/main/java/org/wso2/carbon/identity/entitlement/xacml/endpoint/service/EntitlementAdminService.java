@@ -23,10 +23,7 @@ import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -82,16 +79,6 @@ public class EntitlementAdminService implements Microservice {
     private static final Logger logger = LoggerFactory.getLogger(EntitlementAdminService.class);
 
     private PolicyStore policyStore;
-
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do
-    }
-
-    @Deactivate
-    protected void deactivate(BundleContext bundleContext) {
-        // Nothing to do
-    }
 
     @Reference(
             name = "identity.policy.store.service",
@@ -173,7 +160,7 @@ public class EntitlementAdminService implements Microservice {
 
 
     /**
-     *
+     * It will create the upload the xcaml file in the policyStore location.
      */
     private static class HttpStreamHandlerImpl implements HttpStreamHandler {
 
