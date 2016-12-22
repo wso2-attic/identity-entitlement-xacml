@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>5</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wso2.carbon.identity.entitlement.xacml</groupId>
+    <artifactId>identity-entitlement-xacml</artifactId>
+    <version>${org.wso2.carbon.identity.entitlement.xacml.version}</version>
+
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - Identity Entitlement XACML Module</name>
+    <description>
+        This is a Carbon bundle that represent the Entitlement XACML module.
+    </description>
+    <url>http://wso2.org</url>
+
+    <scm>
+        <url>https://github.com/wso2-extensions/identity-entitlement-xacml.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-entitlement-xacml.git
+        </developerConnection>
+        <connection>scm:git:https://github.com/wso2-extensions/identity-entitlement-xacml.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <modules>
+        <module>components/org.wso2.carbon.identity.entitlement.xacml.core</module>
+        <module>components/org.wso2.carbon.identity.entitlement.xacml.endpoint</module>
+    </modules>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.core.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>${equinox.osgi.services.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${equinox.osgi.version}</version>
+            </dependency>
+
+            <!--logging-->
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
+            </dependency>
+
+            <!--balana-->
+            <dependency>
+                <groupId>org.wso2.balana</groupId>
+                <artifactId>org.wso2.balana</artifactId>
+                <version>${balana.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.balana</groupId>
+                <artifactId>org.wso2.balana.utils</artifactId>
+                <version>${balana.version}</version>
+            </dependency>
+
+            <!--carbon deployment framework-->
+            <dependency>
+                <groupId>org.wso2.carbon.deployment</groupId>
+                <artifactId>org.wso2.carbon.deployment.engine</artifactId>
+                <version>${carbon.deployment.version}</version>
+            </dependency>
+
+
+            <!--msf4j-->
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-core</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.msf4j</groupId>
+                <artifactId>msf4j-swagger</artifactId>
+                <version>${msf4j.version}</version>
+            </dependency>
+
+            <!--javax.ws.rs-->
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${rs-api.version}</version>
+            </dependency>
+
+            <!--gson-->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${google.gson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axiom</groupId>
+                <artifactId>com.springsource.org.apache.axiom</artifactId>
+                <version>${apache.axiom.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <org.wso2.carbon.identity.entitlement.xacml.version>1.0.0-SNAPSHOT</org.wso2.carbon.identity.entitlement.xacml.version>
+        <osgi.core.api.version>6.0.0</osgi.core.api.version>
+        <carbon.kernel.version>5.2.0-SNAPSHOT</carbon.kernel.version>
+        <pax.logging.api.version>1.8.4</pax.logging.api.version>
+        <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <carbon.deployment.version>5.0.0</carbon.deployment.version>
+        <balana.version>1.0.5</balana.version>
+        <rs-api.version>2.0</rs-api.version>
+        <msf4j.version>2.1.0</msf4j.version>
+        <google.gson.version>2.2.4</google.gson.version>
+        <apache.axiom.version>1.2.13</apache.axiom.version>
+
+
+        <!--version ranges-->
+        <balana.import.version.range>[1.0.1,2.0.0)</balana.import.version.range>
+        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
+        <carbon.deployment.import.version.range>[5.0.0, 6.0.0)</carbon.deployment.import.version.range>
+        <carbon.kernel.import.version.range>[5.0.0,6.0.0)</carbon.kernel.import.version.range>
+        <org.slf4j.import.version.range>[1.7.0, 1.7.5)</org.slf4j.import.version.range>
+        <wso2.msf4j.import.version.range>[2.0.0, 3.0.0)</wso2.msf4j.import.version.range>
+    </properties>
+</project>

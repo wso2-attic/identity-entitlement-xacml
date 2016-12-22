@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.wso2.carbon.identity.entitlement.xacml</groupId>
+        <artifactId>identity-entitlement-xacml</artifactId>
+        <relativePath>../../pom.xml</relativePath>
+        <version>${org.wso2.carbon.identity.entitlement.xacml.version}</version>
+    </parent>
+
+    <artifactId>org.wso2.carbon.identity.entitlement.xacml.core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Identity Entitlement XAMCL Core</name>
+    <description>A custom wso2 products or solution</description>
+    <url>http://wso2.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.deployment</groupId>
+            <artifactId>org.wso2.carbon.deployment.engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.balana</groupId>
+            <artifactId>org.wso2.balana</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.balana</groupId>
+            <artifactId>org.wso2.balana.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axiom</groupId>
+            <artifactId>com.springsource.org.apache.axiom</artifactId>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <findbugs.skip>true</findbugs.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+        <private.package>
+            org.wso2.carbon.identity.entitlement.xacml.core.deployer,
+        </private.package>
+        <export.package>
+            !org.wso2.carbon.identity.entitlement.xacml.core.deployer,
+            org.wso2.carbon.identity.entitlement.xacml.core.*
+        </export.package>
+        <import.package>
+            org.slf4j; version="${org.slf4j.import.version.range}",
+            org.wso2.carbon.deployment.engine; version="${carbon.deployment.import.version.range}",
+            org.wso2.carbon.deployment.engine.exception; version="${carbon.deployment.import.version.range}",
+            org.wso2.balana.*; version="${balana.import.version.range}",
+            org.apache.xerces.util,
+            org.apache.axiom.om.*,
+            javax.xml.*
+        </import.package>
+
+    </properties>
+
+</project>
