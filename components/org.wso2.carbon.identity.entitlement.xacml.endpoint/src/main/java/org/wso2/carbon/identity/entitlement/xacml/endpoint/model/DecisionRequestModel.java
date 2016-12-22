@@ -51,7 +51,7 @@ public class DecisionRequestModel {
     @XmlElement(required = false)
     private String resource;
     @XmlElement(required = false)
-    private String[] environment;
+    private String environment;
 
 
     public String getAction() {
@@ -78,11 +78,11 @@ public class DecisionRequestModel {
         this.subject = subject;
     }
 
-    public String[] getEnvironment() {
+    public String getEnvironment() {
         return environment;
     }
 
-    public void setEnvironment(String[] environment) {
+    public void setEnvironment(String environment) {
         this.environment = environment;
     }
 }

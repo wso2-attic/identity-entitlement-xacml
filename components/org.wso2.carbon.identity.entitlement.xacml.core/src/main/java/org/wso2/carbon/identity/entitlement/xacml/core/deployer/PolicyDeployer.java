@@ -133,14 +133,14 @@ public class PolicyDeployer implements Deployer {
      */
     private synchronized void readArtifact(Artifact artifact) {
         String artifactName = artifact.getName();
-        String policyId = artifactName.substring(0,
-                artifactName.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
 
         if (artifact.getName().endsWith(EntitlementConstants.POLICY_BUNDLE_EXTENSTION)) {
             PolicyDTO policyDTO = new PolicyDTO();
             ArrayList<Boolean> policyRequirements = new ArrayList<>(2);
             policyRequirements.add(0, false);
             policyRequirements.add(1, false);
+            String policyId = artifactName.substring(0,
+                    artifactName.lastIndexOf(EntitlementConstants.POLICY_BUNDLE_EXTENSTION));
             try (ZipFile zipFile = new ZipFile(artifact.getFile().getAbsoluteFile())) {
                 zipFile.stream()
                         .forEach(zipEntry -> {

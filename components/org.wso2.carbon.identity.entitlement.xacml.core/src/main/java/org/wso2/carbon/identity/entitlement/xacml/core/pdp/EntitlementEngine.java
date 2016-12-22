@@ -135,12 +135,6 @@ public class EntitlementEngine {
             if (resourceModules.isEmpty()) {
                 logger.error("No resource Finder is registered ");
             }
-            // have to throw exception in implementation time
-            // starting pdp for in developing environment
-//            PDPConfig pdpConfig =
-//                    new PDPConfig(attributeFinder, policyFinder, resourceFinder, false);
-//            pdp = new PDP(pdpConfig);
-//            logger.debug("Entitlement Engine PDP started without all required finders");
         }
     }
 
@@ -180,13 +174,9 @@ public class EntitlementEngine {
      * @param environment environment
      * @return XACML request as String object
      */
-    public String evaluate(String action, String resource, String subject, String[] environment) {
-        String environmentValue = null;
-        if (environment != null && environment.length > 0) {
-            environmentValue = environment[0];
-        }
+    public String evaluate(String action, String resource, String subject, String environment) {
 
-        String xacmlRequest = EntitlementUtil.createSimpleXACMLRequest(subject, resource, action, environmentValue);
+        String xacmlRequest = EntitlementUtil.createSimpleXACMLRequest(subject, resource, action, environment);
         return evaluate(xacmlRequest);
     }
 
